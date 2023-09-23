@@ -347,6 +347,8 @@ module lab2_proc_ProcBaseCtrl
       // Add more instructions to the control signal table
       //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
+      `TINYRV2_INST_ADDI    :cs( y, br_na,  imm_i, y, bm_imm, n, alu_add, nr, wm_a, y,  n,   n    );
+
       default              :cs( n, br_x,  imm_x, n, bm_x,    n, alu_x,   nr, wm_x, n,  n,   n    );
 
     endcase
