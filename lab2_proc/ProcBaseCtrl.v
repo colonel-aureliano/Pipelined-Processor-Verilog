@@ -62,6 +62,8 @@ module lab2_proc_ProcBaseCtrl
 
   input  logic [31:0] inst_D,
   input  logic        br_cond_eq_X,
+  input  logic        br_cond_lt_X,
+  input  logic        br_cond_ltu_X,
 
   // extra ports
 
@@ -246,6 +248,11 @@ module lab2_proc_ProcBaseCtrl
   localparam br_x     = 3'bx; // Don't care
   localparam br_na    = 3'b0; // No branch
   localparam br_bne   = 3'b1; // bne
+  localparam br_beq   = 3'b2;
+  localparam br_blt   = 3'b3;
+  localparam br_bltu  = 3'b4;
+  localparam br_bge   = 3'b5;
+  localparam br_bgeu  = 3'b6;
 
   // Operand 2 Mux Select
 
@@ -390,11 +397,15 @@ module lab2_proc_ProcBaseCtrl
 
       // jump instructions
       `TINYRV2_INST_JAL     :cs( y, br_na,  imm_j, n, bm_x,   am_x,    n, alu_x,   nr, wm_a, y,  n,   n    );
-      //TODO
+      `TINYRV2_INST_JALR    :cs( y, br_na,  imm_i, y, bm_imm, am_rf,   n, alu_add, nr, wm_a, y,  n,   n    );
 
       // branch instructions
-      `TINYRV2_INST_BNE     :cs( y, br_bne, imm_b, y, bm_rf,  am_rf,   y, alu_x,   nr, wm_a, n,  n,   n    );
-      //TODO
+      `TINYRV2_INST_BNE     :cs( y, br_bne, imm_b, y, bm_rf,  am_rf,   y, alu_x,   nr, wm_x, n,  n,   n    );
+      `TINYRV2_INST_BEQ     :cs( y, br_beq, imm_b, y, bm_rf,  am_rf,   y, alu_x,   nr, wm_x, n,  n,   n    );
+      `TINYRV2_INST_BLT     :cs( y, br_blt, imm_b, y, bm_rf,  am_rf,   y, alu_x,   nr, wm_x, n,  n,   n    );
+      `TINYRV2_INST_BLTU    :cs( y, br_bltu,imm_b, y, bm_rf,  am_rf,   y, alu_x,   nr, wm_x, n,  n,   n    );
+      `TINYRV2_INST_BGE     :cs( y, br_bge, imm_b, y, bm_rf,  am_rf,   y, alu_x,   nr, wm_x, n,  n,   n    );
+      `TINYRV2_INST_BGEU    :cs( y, br_bgeu,imm_b, y, bm_rf,  am_rf,   y, alu_x,   nr, wm_x, n,  n,   n    );
       
       default               :cs( n, br_x,   imm_x, n, bm_x,   am_x,    n, alu_x,   nr, wm_x, n,  n,   n    );
 
@@ -537,9 +548,37 @@ module lab2_proc_ProcBaseCtrl
   // branch logic, redirect PC in F if branch is taken
 
   always_comb begin
-    if ( val_X && ( br_type_X == br_bne ) ) begin
+    if ( inst_X == `TINYRV2_INST_JAL ) begin
+      pc_redirect_X = 1'b1;
+      pc_sel_X      = 2'd1;
+    end
+    else if ( inst_X == `TINYRV2_INST_JALR ) begin
+      pc_redirect_X = 1'b1;
+      pc_sel_X      = 2'd3;
+    end
+    else if ( val_X && ( br_type_X == br_bne ) ) begin
       pc_redirect_X = !br_cond_eq_X;
-      pc_sel_X      = 2'b1; // use branch target
+      pc_sel_X      = 2'd2; // use branch target
+    end
+    else if ( val_X && ( br_type_X == br_beq ) ) begin
+      pc_redirect_X = br_cond_eq_X;
+      pc_sel_X      = 2'd2;
+    end
+    else if ( val_X && ( br_type_X == br_blt ) ) begin
+      pc_redirect_X = br_cond_lt_X;
+      pc_sel_X      = 2'd2;
+    end
+    else if ( val_X && ( br_type_X == br_bltu ) ) begin
+      pc_redirect_X = br_cond_ltu_X;
+      pc_sel_X      = 2'd2;
+    end
+    else if ( val_X && ( br_type_X == br_bge ) ) begin
+      pc_redirect_X = !br_cond_lt_X;
+      pc_sel_X      = 2'd2;
+    end
+    else if ( val_X && ( br_type_X == br_bgeu ) ) begin
+      pc_redirect_X = !br_cond_ltu_X;
+      pc_sel_X      = 2'd2;
     end
     else begin
       pc_redirect_X = 1'b0;

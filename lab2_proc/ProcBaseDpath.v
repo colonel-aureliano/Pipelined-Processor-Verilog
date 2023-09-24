@@ -66,6 +66,8 @@ module lab2_proc_ProcBaseDpath
 
   output logic [31:0]  inst_D,
   output logic         br_cond_eq_X,
+  output logic         br_cond_lt_X,
+  output logic         br_cond_ltu_X,
 
   // extra ports
 
@@ -89,6 +91,7 @@ module lab2_proc_ProcBaseDpath
   logic [31:0] pc_plus4_F;
   logic [31:0] br_target_X;
   logic [31:0] jal_target_D;
+  logic [31:0] jalr_target_X;
 
   vc_EnResetReg#(32, c_reset_vector - 32'd4) pc_reg_F
   (
@@ -108,8 +111,9 @@ module lab2_proc_ProcBaseDpath
   vc_Mux3#(32) pc_sel_mux_F
   (
     .in0  (pc_plus4_F),
-    .in1  (br_target_X),
-    .in2  (jal_target_D),
+    .in1  (jal_target_D),
+    .in2  (br_target_X),
+    .in3  (jalr_target_X),
     .sel  (pc_sel_F),
     .out  (pc_next_F)
   );
@@ -272,11 +276,13 @@ module lab2_proc_ProcBaseDpath
     .fn       (alu_fn_X),
     .out      (alu_result_X),
     .ops_eq   (br_cond_eq_X),
-    .ops_lt   (),
-    .ops_ltu  ()
+    .ops_lt   (br_cond_lt_X),
+    .ops_ltu  (br_cond_ltu_X)
   );
 
   assign ex_result_X = alu_result_X;
+
+  assign jalr_target_X = alu_result_X;
 
   assign dmem_reqstream_msg_addr = alu_result_X;
 
