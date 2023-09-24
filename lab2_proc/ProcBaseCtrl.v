@@ -43,6 +43,7 @@ module lab2_proc_ProcBaseCtrl
 
   output logic        reg_en_D,
   output logic [1:0]  op2_sel_D,
+  output logic        op1_sel_D,
   output logic [1:0]  csrr_sel_D,
   output logic [2:0]  imm_type_D,
 
@@ -246,18 +247,32 @@ module lab2_proc_ProcBaseCtrl
   localparam br_na    = 3'b0; // No branch
   localparam br_bne   = 3'b1; // bne
 
-  // Operand 1 Mux Select
+  // Operand 2 Mux Select
 
   localparam bm_x     = 2'bx; // Don't care
   localparam bm_rf    = 2'd0; // Use data from register file
   localparam bm_imm   = 2'd1; // Use sign-extended immediate
   localparam bm_csr   = 2'd2; // Use from mngr data
 
+  // Operand 1 Mux Select
+
+  localparam am_x     = 1'bx;
+  localparam am_rf    = 1'b0;
+  localparam am_pc    = 1'b1;
+
   // ALU Function
 
   localparam alu_x    = 4'bx;
   localparam alu_add  = 4'd0;
   localparam alu_sub  = 4'd1;
+  localparam alu_and  = 4'd2;
+  localparam alu_or   = 4'd3;
+  localparam alu_xor  = 4'd4;
+  localparam alu_slt  = 4'd5;
+  localparam alu_sltu = 4'd6;
+  localparam alu_sra  = 4'd7;
+  localparam alu_srl  = 4'd8;
+  localparam alu_sll  = 4'd9;
   localparam alu_cp0  = 4'd11;
   localparam alu_cp1  = 4'd12;
 
@@ -304,6 +319,7 @@ module lab2_proc_ProcBaseCtrl
     input logic [2:0] cs_imm_type,
     input logic       cs_rs1_en,
     input logic [1:0] cs_op2_sel,
+    input logic       cs_op1_sel,
     input logic       cs_rs2_en,
     input logic [3:0] cs_alu_fn,
     input logic [1:0] cs_dmem_reqstream_type,
@@ -318,6 +334,7 @@ module lab2_proc_ProcBaseCtrl
     imm_type_D            = cs_imm_type;
     rs1_en_D              = cs_rs1_en;
     op2_sel_D             = cs_op2_sel;
+    op1_sel_D             = cs_op1_sel;
     rs2_en_D              = cs_rs2_en;
     alu_fn_D              = cs_alu_fn;
     dmem_reqstream_type_D = cs_dmem_reqstream_type;
@@ -334,22 +351,52 @@ module lab2_proc_ProcBaseCtrl
 
     casez ( inst_D )
 
-      //                            br      imm   rs1 op2    rs2 alu      dmm wbmux rf
-      //                       val  type    type   en muxsel  en fn       typ sel   wen csrr csrw
-      `TINYRV2_INST_NOP     :cs( y, br_na,  imm_x, n, bm_x,   n, alu_x,   nr, wm_a, n,  n,   n    );
-      `TINYRV2_INST_ADD     :cs( y, br_na,  imm_x, y, bm_rf,  y, alu_add, nr, wm_a, y,  n,   n    );
-      `TINYRV2_INST_LW      :cs( y, br_na,  imm_i, y, bm_imm, n, alu_add, ld, wm_m, y,  n,   n    );
-      `TINYRV2_INST_BNE     :cs( y, br_bne, imm_b, y, bm_rf,  y, alu_x,   nr, wm_a, n,  n,   n    );
-      `TINYRV2_INST_CSRR    :cs( y, br_na,  imm_i, n, bm_csr, n, alu_cp1, nr, wm_a, y,  y,   n    );
-      `TINYRV2_INST_CSRW    :cs( y, br_na,  imm_i, y, bm_rf,  n, alu_cp0, nr, wm_a, n,  n,   y    );
+      //                            br      imm   rs1 op2     op1     rs2 alu      dmm wbmux rf
+      //                       val  type    type   en muxsel  muxsel   en fn       typ sel   wen csrr csrw
+      `TINYRV2_INST_NOP     :cs( y, br_na,  imm_x, n, bm_x,   am_x,    n, alu_x,   nr, wm_x, n,  n,   n    );
+      `TINYRV2_INST_CSRR    :cs( y, br_na,  imm_i, n, bm_csr, am_x,    n, alu_cp1, nr, wm_a, y,  y,   n    );
+      `TINYRV2_INST_CSRW    :cs( y, br_na,  imm_i, y, bm_x,   am_rf,   n, alu_cp0, nr, wm_a, n,  n,   y    );
 
-      //''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''
-      // Add more instructions to the control signal table
-      //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+      // register-register arithmetic instructions
+      `TINYRV2_INST_ADD     :cs( y, br_na,  imm_x, y, bm_rf,  am_rf,   y, alu_add, nr, wm_a, y,  n,   n    );
+      `TINYRV2_INST_SUB     :cs( y, br_na,  imm_x, y, bm_rf,  am_rf,   y, alu_sub, nr, wm_a, y,  n,   n    );
+      `TINYRV2_INST_MUL     :cs( y, br_na,  imm_x, y, bm_rf,  am_rf,   y, alu_x,   nr, wm_a, y,  n,   n    );
+      // TODO handle mul
+      `TINYRV2_INST_AND     :cs( y, br_na,  imm_x, y, bm_rf,  am_rf,   y, alu_and, nr, wm_a, y,  n,   n    );
+      `TINYRV2_INST_OR      :cs( y, br_na,  imm_x, y, bm_rf,  am_rf,   y, alu_or,  nr, wm_a, y,  n,   n    );
+      `TINYRV2_INST_XOR     :cs( y, br_na,  imm_x, y, bm_rf,  am_rf,   y, alu_xor, nr, wm_a, y,  n,   n    );
+      `TINYRV2_INST_SLT     :cs( y, br_na,  imm_x, y, bm_rf,  am_rf,   y, alu_slt, nr, wm_a, y,  n,   n    );
+      `TINYRV2_INST_SLTU    :cs( y, br_na,  imm_x, y, bm_rf,  am_rf,   y, alu_sltu,nr, wm_a, y,  n,   n    );
+      `TINYRV2_INST_SRA     :cs( y, br_na,  imm_x, y, bm_rf,  am_rf,   y, alu_sra, nr, wm_a, y,  n,   n    );
+      `TINYRV2_INST_SRL     :cs( y, br_na,  imm_x, y, bm_rf,  am_rf,   y, alu_srl, nr, wm_a, y,  n,   n    );
+      `TINYRV2_INST_SLL     :cs( y, br_na,  imm_x, y, bm_rf,  am_rf,   y, alu_sll, nr, wm_a, y,  n,   n    );
 
-      `TINYRV2_INST_ADDI    :cs( y, br_na,  imm_i, y, bm_imm, n, alu_add, nr, wm_a, y,  n,   n    );
+      // register-immediate instructions
+      `TINYRV2_INST_ADDI    :cs( y, br_na,  imm_i, y, bm_imm, am_rf,   n, alu_add, nr, wm_a, y,  n,   n    );
+      `TINYRV2_INST_ORI     :cs( y, br_na,  imm_i, y, bm_imm, am_rf,   n, alu_or,  nr, wm_a, y,  n,   n    );
+      `TINYRV2_INST_ANDI    :cs( y, br_na,  imm_i, y, bm_imm, am_rf,   n, alu_and, nr, wm_a, y,  n,   n    );
+      `TINYRV2_INST_XORI    :cs( y, br_na,  imm_i, y, bm_imm, am_rf,   n, alu_xor, nr, wm_a, y,  n,   n    );
+      `TINYRV2_INST_SLTI    :cs( y, br_na,  imm_i, y, bm_imm, am_rf,   n, alu_slt, nr, wm_a, y,  n,   n    );
+      `TINYRV2_INST_SLTIU   :cs( y, br_na,  imm_i, y, bm_imm, am_rf,   n, alu_sltu,nr, wm_a, y,  n,   n    );
+      `TINYRV2_INST_SRAI    :cs( y, br_na,  imm_i, y, bm_imm, am_rf,   n, alu_sra, nr, wm_a, y,  n,   n    );
+      `TINYRV2_INST_SRLI    :cs( y, br_na,  imm_i, y, bm_imm, am_rf,   n, alu_srl, nr, wm_a, y,  n,   n    );
+      `TINYRV2_INST_SLLI    :cs( y, br_na,  imm_i, y, bm_imm, am_rf,   n, alu_sll, nr, wm_a, y,  n,   n    );
+      `TINYRV2_INST_LUI     :cs( y, br_na,  imm_u, n, bm_imm, am_x,    n, alu_cp1, nr, wm_a, y,  n,   n    );
+      `TINYRV2_INST_AUIPC   :cs( y, br_na,  imm_u, n, bm_imm, am_pc,   n, alu_add, nr, wm_a, y,  n,   n    );
 
-      default              :cs( n, br_x,  imm_x, n, bm_x,    n, alu_x,   nr, wm_x, n,  n,   n    );
+      // memory instructions
+      `TINYRV2_INST_LW      :cs( y, br_na,  imm_i, y, bm_imm, am_rf,   n, alu_add, ld, wm_m, y,  n,   n    );
+      `TINYRV2_INST_SW      :cs( y, br_na,  imm_s, y, bm_imm, am_rf,   y, alu_add, st, wm_x, n,  n,   n    );
+
+      // jump instructions
+      `TINYRV2_INST_JAL     :cs( y, br_na,  imm_j, n, bm_x,   am_x,    n, alu_x,   nr, wm_a, y,  n,   n    );
+      //TODO
+
+      // branch instructions
+      `TINYRV2_INST_BNE     :cs( y, br_bne, imm_b, y, bm_rf,  am_rf,   y, alu_x,   nr, wm_a, n,  n,   n    );
+      //TODO
+      
+      default               :cs( n, br_x,   imm_x, n, bm_x,   am_x,    n, alu_x,   nr, wm_x, n,  n,   n    );
 
     endcase
   end // always_comb

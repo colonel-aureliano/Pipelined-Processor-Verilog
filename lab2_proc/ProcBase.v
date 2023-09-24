@@ -192,6 +192,7 @@ module lab2_proc_ProcBase
 
   logic        reg_en_D;
   logic [1:0]  op2_sel_D;
+  logic        op1_sel_D;
   logic [1:0]  csrr_sel_D;
   logic [2:0]  imm_type_D;
 

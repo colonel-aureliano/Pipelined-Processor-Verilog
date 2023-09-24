@@ -47,6 +47,7 @@ module lab2_proc_ProcBaseDpath
 
   input  logic         reg_en_D,
   input  logic [1:0]   op2_sel_D,
+  input  logic         op1_sel_D,
   input  logic [1:0]   csrr_sel_D,
   input  logic [2:0]   imm_type_D,
 
@@ -206,6 +207,18 @@ module lab2_proc_ProcBaseDpath
     .out  (op2_D)
   );
 
+  logic [31:0] op1_D;
+
+  // op1 select mux
+  // This mux chooses among RS1 and the current PC.
+  vc_Mux3#(32) op1_sel_mux_D
+  (
+    .in0  (rf_rdata0_D),
+    .in1  (pc_D),
+    .sel  (op1_sel_D),
+    .out  (op1_D)
+  );
+
   vc_Adder#(32) pc_plus_imm_D
   (
     .in0  (pc_D),
@@ -227,7 +240,7 @@ module lab2_proc_ProcBaseDpath
     .clk   (clk),
     .reset (reset),
     .en    (reg_en_X),
-    .d     (rf_rdata0_D),
+    .d     (op1_D),
     .q     (op1_X)
   );
 
