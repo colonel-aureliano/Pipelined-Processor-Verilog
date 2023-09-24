@@ -550,11 +550,11 @@ module lab2_proc_ProcBaseCtrl
   always_comb begin
     if ( inst_X == `TINYRV2_INST_JAL ) begin
       pc_redirect_X = 1'b1;
-      pc_sel_X      = 2'd1;
+      pc_sel_X      = 2'd1; // use jal target
     end
     else if ( inst_X == `TINYRV2_INST_JALR ) begin
       pc_redirect_X = 1'b1;
-      pc_sel_X      = 2'd3;
+      pc_sel_X      = 2'd3; // use jalr target
     end
     else if ( val_X && ( br_type_X == br_bne ) ) begin
       pc_redirect_X = !br_cond_eq_X;
