@@ -11,6 +11,8 @@
 `include "vc/regs.v"
 `include "vc/regfiles.v"
 
+`include "lab1_imul/IntMulAlt.v"
+
 `include "tinyrv2_encoding.v"
 `include "ProcDpathImmGen.v"
 `include "ProcDpathAlu.v"
@@ -36,7 +38,7 @@ module lab2_proc_ProcBaseDpath
   // mngr communication ports
 
   input  logic [31:0]  mngr2proc_data,
-  output logic [31:0]  proc2mngr_data,
+  output logic [31:0]  proc2mngr_data,  
 
   // control signals (ctrl->dpath)
 
@@ -50,9 +52,12 @@ module lab2_proc_ProcBaseDpath
   input  logic         op1_sel_D,
   input  logic [1:0]   csrr_sel_D,
   input  logic [2:0]   imm_type_D,
+  input  logic         imul_req_val_D,
 
   input  logic         reg_en_X,
   input  logic [3:0]   alu_fn_X,
+  input  logic [1:0]   ex_result_sel_X,
+  input  logic         imul_resp_rdy_X,
 
   input  logic         reg_en_M,
   input  logic         wb_result_sel_M,
@@ -65,9 +70,12 @@ module lab2_proc_ProcBaseDpath
   // status signals (dpath->ctrl)
 
   output logic [31:0]  inst_D,
+  output logic         imul_req_rdy_D,
+
   output logic         br_cond_eq_X,
   output logic         br_cond_lt_X,
   output logic         br_cond_ltu_X,
+  output logic         imul_resp_val_X,
 
   // extra ports
 
@@ -236,8 +244,26 @@ module lab2_proc_ProcBaseDpath
   // X stage
   //--------------------------------------------------------------------
 
+  logic [31:0] pc_X;
   logic [31:0] op1_X;
   logic [31:0] op2_X;
+
+  vc_EnResetReg#(32) pc_reg_D
+  (
+    .clk    (clk),
+    .reset  (reset),
+    .en     (reg_en_X),
+    .d      (pc_D),
+    .q      (pc_X)
+  );
+
+  logic [31:0] pc_plus4_X;
+
+  vc_Incrementer#(32, 4) pc_incr_F
+  (
+    .in   (pc_X),
+    .out  (pc_plus4_X)
+  );
 
   vc_EnResetReg#(32, 0) op1_reg_X
   (
@@ -280,7 +306,30 @@ module lab2_proc_ProcBaseDpath
     .ops_ltu  (br_cond_ltu_X)
   );
 
-  assign ex_result_X = alu_result_X;
+  logic [31:0]  imul_resp_msg;
+
+  lab1_imul_IntMulAlt imul 
+  (
+    .clk          (clk),
+    .reset        (reset),
+
+    .istream_val  (imul_req_val_D),
+    .istream_rdy  (imul_req_rdy_D),
+    .istream_msg  ({op1_D,op2_D}),
+
+    .ostream_val  (imul_resp_val_X),
+    .ostream_rdy  (imul_resp_rdy_X),
+    .ostream_msg  (imul_resp_msg)
+  );
+
+  vc_Mux3#(32) ex_result_sel_mux_X
+  (
+    .in0    (imul_resp_msg),
+    .in1    (alu_result_X),
+    .in2    (pc_plus4_X),
+    .sel    (ex_result_sel_X),
+    .out    (ex_result_X)
+  )
 
   assign jalr_target_X = alu_result_X;
 
