@@ -6,6 +6,7 @@
 `define LAB2_PROC_PROC_BASE_CTRL_V
 
 `include "vc/trace.v"
+`include "vc/mem-msgs.v"
 
 `include "tinyrv2_encoding.v"
 
@@ -26,6 +27,7 @@ module lab2_proc_ProcBaseCtrl
 
   output logic        dmem_reqstream_val,
   input  logic        dmem_reqstream_rdy,
+  output logic [2:0]  dmem_reqstream_msg_type,
   input  logic        dmem_respstream_val,
   output logic        dmem_respstream_rdy,
 
@@ -312,7 +314,7 @@ module lab2_proc_ProcBaseCtrl
   // Execute Mux Select
 
   localparam em_x     = 2'bx; // Don't care
-  localparam em_mul  = 0;    // Use imul result
+  localparam em_mul   = 0;    // Use imul result
   localparam em_a     = 1;    // Use ALU output
   localparam em_pc    = 2;    // Use pc + 4
 
@@ -383,7 +385,7 @@ module lab2_proc_ProcBaseCtrl
       // register-register arithmetic instructions
       `TINYRV2_INST_ADD     :cs( y, br_na,  imm_x, y, bm_rf,  am_rf,   y, alu_add, nr, wm_a, em_a,    y,  n,   n    );
       `TINYRV2_INST_SUB     :cs( y, br_na,  imm_x, y, bm_rf,  am_rf,   y, alu_sub, nr, wm_a, em_a,    y,  n,   n    );
-      `TINYRV2_INST_MUL     :cs( y, br_na,  imm_x, y, bm_rf,  am_rf,   y, alu_x,   nr, wm_a, em_mul, y,  n,   n    );
+      `TINYRV2_INST_MUL     :cs( y, br_na,  imm_x, y, bm_rf,  am_rf,   y, alu_x,   nr, wm_a, em_mul,  y,  n,   n    );
       `TINYRV2_INST_AND     :cs( y, br_na,  imm_x, y, bm_rf,  am_rf,   y, alu_and, nr, wm_a, em_a,    y,  n,   n    );
       `TINYRV2_INST_OR      :cs( y, br_na,  imm_x, y, bm_rf,  am_rf,   y, alu_or,  nr, wm_a, em_a,    y,  n,   n    );
       `TINYRV2_INST_XOR     :cs( y, br_na,  imm_x, y, bm_rf,  am_rf,   y, alu_xor, nr, wm_a, em_a,    y,  n,   n    );
@@ -609,6 +611,12 @@ module lab2_proc_ProcBaseCtrl
       pc_redirect_X = 1'b0;
       pc_sel_X      = 2'b0; // use pc+4
     end
+  end
+
+  always_comb begin
+    if ( dmem_reqstream_type_X == st ) begin
+      dmem_reqstream_msg_type = `VC_MEM_REQ_MSG_TYPE_WRITE
+    end else VC_MEM_REQ_MSG_TYPE_READ = `VC_MEM_REQ_MSG_TYPE_READ
   end
 
   // imul_req_val signal for mul instruction

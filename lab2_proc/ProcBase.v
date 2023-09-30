@@ -135,12 +135,14 @@ module lab2_proc_ProcBase
   logic        dmem_reqstream_enq_rdy;
 
   logic [31:0] dmem_reqstream_enq_msg_addr;
+  logic [31:0] dmem_reqstream_enq_msg_data;
+  logic [ 2:0] dmem_reqstream_enq_msg_type;
 
   assign dmem_reqstream_enq_msg.type_  = `VC_MEM_REQ_MSG_TYPE_READ;
   assign dmem_reqstream_enq_msg.opaque = 8'b0;
   assign dmem_reqstream_enq_msg.addr   = dmem_reqstream_enq_msg_addr;
   assign dmem_reqstream_enq_msg.len    = 2'd0;
-  assign dmem_reqstream_enq_msg.data   = 32'b0;
+  assign dmem_reqstream_enq_msg.data   = dmem_reqstream_enq_msg_data;
 
   vc_Queue#(`VC_QUEUE_BYPASS,$bits(mem_req_4B_t),1) dmem_queue
   (
@@ -238,6 +240,7 @@ module lab2_proc_ProcBase
 
     .dmem_reqstream_val       (dmem_reqstream_enq_val),
     .dmem_reqstream_rdy       (dmem_reqstream_enq_rdy),
+    .dmem_reqstream_msg_type  (dmem_reqstream_enq_msg_type),
     .dmem_respstream_val      (dmem_respstream_val),
     .dmem_respstream_rdy      (dmem_respstream_rdy),
 
@@ -271,6 +274,7 @@ module lab2_proc_ProcBase
     // Data Memory Port
 
     .dmem_reqstream_msg_addr  (dmem_reqstream_enq_msg_addr),
+    .dmem_reqstream_msg_data  (dmem_reqstream_enq_msg_data),
     .dmem_respstream_msg_data (dmem_respstream_msg.data),
 
     // mngr communication ports
