@@ -7,7 +7,7 @@
 `timescale 1ps/1ps
 
 `ifndef DESIGN
-  `define DESIGN IntMulBase
+  `define DESIGN ProcBase
 `endif
 
 `include `"`DESIGN.v`"

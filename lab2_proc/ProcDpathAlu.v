@@ -26,11 +26,11 @@ module lab2_proc_ProcDpathAlu
       4'd2    : out = in0 & in1;
       4'd3    : out = in0 | in1;
       4'd4    : out = in0 ^ in1;
-      4'd5    : out = $signed(in0) < $signed(in1);
-      4'd6    : out = in0 < in1;
-      4'd7    : $signed(in0) >>> in1;
-      4'd8    : in0 >> in1;
-      4'd9    : in0 << in1;
+      4'd5    : out = {{31{1'b0}}, $signed(in0) < $signed(in1)};
+      4'd6    : out = {{31{1'b0}}, in0 < in1};
+      4'd7    : out = $signed(in0) >>> in1;
+      4'd8    : out = in0 >> in1;
+      4'd9    : out = in0 << in1;
       4'd11   : out = in0;                                      // CP OP0
       4'd12   : out = in1;                                      // CP OP1
 

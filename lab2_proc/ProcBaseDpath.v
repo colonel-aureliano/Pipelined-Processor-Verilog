@@ -117,7 +117,7 @@ module lab2_proc_ProcBaseDpath
     .out  (pc_plus4_F)
   );
 
-  vc_Mux3#(32) pc_sel_mux_F
+  vc_Mux4#(32) pc_sel_mux_F
   (
     .in0  (pc_plus4_F),
     .in1  (jal_target_D),
@@ -224,7 +224,7 @@ module lab2_proc_ProcBaseDpath
 
   // op1 select mux
   // This mux chooses among RS1 and the current PC.
-  vc_Mux3#(32) op1_sel_mux_D
+  vc_Mux2#(32) op1_sel_mux_D
   (
     .in0  (rf_rdata0_D),
     .in1  (pc_D),
@@ -291,7 +291,7 @@ module lab2_proc_ProcBaseDpath
     .en    (reg_en_X),
     .d     (rf_rdata1_D),
     .q     (dmem_reqstream_msg_data)
-  )
+  );
 
   vc_EnResetReg#(32, 0) br_target_reg_X
   (
@@ -339,7 +339,7 @@ module lab2_proc_ProcBaseDpath
     .in2    (pc_plus4_X),
     .sel    (ex_result_sel_X),
     .out    (ex_result_X)
-  )
+  );
 
   assign jalr_target_X = alu_result_X;
 

@@ -6,7 +6,6 @@
 `define LAB2_PROC_PROC_BASE_CTRL_V
 
 `include "vc/trace.v"
-`include "vc/mem-msgs.v"
 
 `include "tinyrv2_encoding.v"
 
@@ -254,13 +253,13 @@ module lab2_proc_ProcBaseCtrl
   // Branch type
 
   localparam br_x     = 3'bx; // Don't care
-  localparam br_na    = 3'b0; // No branch
-  localparam br_bne   = 3'b1; // bne
-  localparam br_beq   = 3'b2;
-  localparam br_blt   = 3'b3;
-  localparam br_bltu  = 3'b4;
-  localparam br_bge   = 3'b5;
-  localparam br_bgeu  = 3'b6;
+  localparam br_na    = 3'd0; // No branch
+  localparam br_bne   = 3'd1; // bne
+  localparam br_beq   = 3'd2;
+  localparam br_blt   = 3'd3;
+  localparam br_bltu  = 3'd4;
+  localparam br_bge   = 3'd5;
+  localparam br_bgeu  = 3'd6;
 
   // Operand 2 Mux Select
 
@@ -346,8 +345,8 @@ module lab2_proc_ProcBaseCtrl
     input logic       cs_rs2_en,
     input logic [3:0] cs_alu_fn,
     input logic [1:0] cs_dmem_reqstream_type,
-    input logic [1:0] cs_ex_result_sel,
     input logic       cs_wb_result_sel,
+    input logic [1:0] cs_ex_result_sel,
     input logic       cs_rf_wen,
     input logic       cs_csrr,
     input logic       cs_csrw
@@ -615,8 +614,8 @@ module lab2_proc_ProcBaseCtrl
 
   always_comb begin
     if ( dmem_reqstream_type_X == st ) begin
-      dmem_reqstream_msg_type = `VC_MEM_REQ_MSG_TYPE_WRITE
-    end else VC_MEM_REQ_MSG_TYPE_READ = `VC_MEM_REQ_MSG_TYPE_READ
+      dmem_reqstream_msg_type = 3'd1;
+    end else dmem_reqstream_msg_type = 3'd0;
   end
 
   // imul_req_val signal for mul instruction

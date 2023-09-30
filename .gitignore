@@ -6,3 +6,4 @@
 **/core.*
 *mac*
 obj_dir
+**/*.hex*
