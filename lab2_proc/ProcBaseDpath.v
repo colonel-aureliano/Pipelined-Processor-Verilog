@@ -249,7 +249,7 @@ module lab2_proc_ProcBaseDpath
   logic [31:0] op1_X;
   logic [31:0] op2_X;
 
-  vc_EnResetReg#(32) pc_reg_D
+  vc_EnResetReg#(32) pc_reg_X
   (
     .clk    (clk),
     .reset  (reset),
@@ -260,7 +260,7 @@ module lab2_proc_ProcBaseDpath
 
   logic [31:0] pc_plus4_X;
 
-  vc_Incrementer#(32, 4) pc_incr_F
+  vc_Incrementer#(32, 4) pc_incr_X
   (
     .in   (pc_X),
     .out  (pc_plus4_X)
@@ -367,8 +367,8 @@ module lab2_proc_ProcBaseDpath
 
   vc_Mux2#(32) wb_result_sel_mux_M
   (
-    .in0    (ex_result_M),
-    .in1    (dmem_result_M),
+    .in0    (dmem_result_M),
+    .in1    (ex_result_M),
     .sel    (wb_result_sel_M),
     .out    (wb_result_M)
   );
@@ -398,7 +398,7 @@ module lab2_proc_ProcBaseDpath
 
   logic [31:0] stats_en_W;
 
-  assign stats_en = | stats_en_W;
+  assign stats_en = | stats_en_W;   // bit-wise OR
 
   vc_EnResetReg#(32, 0) stats_en_reg_W
   (

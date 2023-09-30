@@ -138,7 +138,7 @@ module lab2_proc_ProcBase
   logic [31:0] dmem_reqstream_enq_msg_data;
   logic [ 2:0] dmem_reqstream_enq_msg_type;
 
-  assign dmem_reqstream_enq_msg.type_  = `VC_MEM_REQ_MSG_TYPE_READ;
+  assign dmem_reqstream_enq_msg.type_  = dmem_reqstream_enq_msg_type;
   assign dmem_reqstream_enq_msg.opaque = 8'b0;
   assign dmem_reqstream_enq_msg.addr   = dmem_reqstream_enq_msg_addr;
   assign dmem_reqstream_enq_msg.len    = 2'd0;
