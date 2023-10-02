@@ -128,7 +128,7 @@ endif
 SOURCES := $(wildcard  obj_dir/*/tb_*) $(wildcard  obj_dir/*/ub_*)
 UTB_SOURCES := $(wildcard  obj_dir/utb_*)
 ifndef DESIGN
-	DESIGN  = Unit_Test
+	DESIGN  = ProcBase
 endif
 ifndef MEM
 	MEM=hex/add.hex 

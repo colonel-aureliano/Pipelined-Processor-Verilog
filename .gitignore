@@ -1,9 +1,7 @@
 **/logs/
-**/obj_dir/
 **/waves/
 *mac*
 **/results/
 **/core.*
-*mac*
-obj_dir
+**/obj_dir*
 **/*.hex*
