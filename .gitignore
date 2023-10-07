@@ -5,3 +5,4 @@
 **/core.*
 **/obj_dir*
 **/*.hex*
+random_instructions.txt
