@@ -307,8 +307,8 @@ module lab2_proc_ProcBaseCtrl
   // Writeback Mux Select
 
   localparam wm_x     = 1'bx; // Don't care
-  localparam wm_a     = 1'b0; // Use ALU output
-  localparam wm_m     = 1'b1; // Use data memory response
+  localparam wm_a     = 1'b1; // Use ALU output
+  localparam wm_m     = 1'b0; // Use data memory response
 
   // Execute Mux Select
 
