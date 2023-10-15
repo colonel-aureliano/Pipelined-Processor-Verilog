@@ -22,15 +22,16 @@ module lab2_proc_ProcDpathAlu
 
     case ( fn )
       4'd0    : out = in0 + in1;                                // ADD
-      4'd1    : out = in0 - in1;
-      4'd2    : out = in0 & in1;
-      4'd3    : out = in0 | in1;
-      4'd4    : out = in0 ^ in1;
-      4'd5    : out = {{31{1'b0}}, $signed(in0) < $signed(in1)};
-      4'd6    : out = {{31{1'b0}}, in0 < in1};
-      4'd7    : out = $signed(in0) >>> in1;
-      4'd8    : out = in0 >> in1;
-      4'd9    : out = in0 << in1;
+      4'd1    : out = in0 - in1;                                // SUB
+      4'd2    : out = in0 & in1;                                // AND
+      4'd3    : out = in0 | in1;                                // OR
+      4'd4    : out = in0 ^ in1;                                // XOR
+      4'd5    : out = {{31{1'b0}}, $signed(in0) < $signed(in1)};// SLT
+      4'd6    : out = {{31{1'b0}}, in0 < in1};                  // SLTU
+      4'd7    : out = $signed(in0) >>> in1[4:0];                // SRA
+      4'd8    : out = in0 >> in1[4:0];                          // SRL
+      4'd9    : out = in0 << in1[4:0];                          // SLL
+      4'd10   : out = (in0 + in1) & 32'hfffffffe;               // JALR
       4'd11   : out = in0;                                      // CP OP0
       4'd12   : out = in1;                                      // CP OP1
 
