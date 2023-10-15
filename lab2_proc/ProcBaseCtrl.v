@@ -533,9 +533,9 @@ module lab2_proc_ProcBaseCtrl
 
   assign ostall_D = val_D && ( ostall_mngr2proc_D || ostall_hazard_D || ostall_imul_not_ready_D );
 
-  // osquash due to jump instruction in D stage (not implemented yet)
+  // osquash due to jump instruction in D stage
 
-  assign osquash_D = 1'b0;
+  assign osquash_D = pc_redirect_D;
 
   // stall and squash in D
 

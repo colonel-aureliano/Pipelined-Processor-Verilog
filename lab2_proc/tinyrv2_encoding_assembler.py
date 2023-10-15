@@ -1848,7 +1848,7 @@ if __name__ == '__main__':
         data_ct = data_ct +1
         if data_ct ==4 :
           if firstwrite:
-            outfile1.write("\n")
+            outfile2.write("\n")
           #print("{:08X}".format(data))
           outfile2.write("{:08X}".format(data))
           firstwrite=True
@@ -1860,7 +1860,7 @@ if __name__ == '__main__':
         data_ct = data_ct +1
         if data_ct ==4 :
           if firstwrite:
-            outfile1.write("\n")
+            outfile2.write("\n")
           #print("{:08X}".format(data))
           outfile2.write("{:08X}".format(data))
           firstwrite=True
