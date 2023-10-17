@@ -29,6 +29,34 @@ smallest = 0x80000000
 r1 = 'x1'
 r2 = 'x2'
 
+def and_generate(en_nop):
+  i = 'and'
+  s = generate_rr(i,r1,r2,0,0,0,en_nop)
+  s += generate_rr(i,r1,r2,1,1,1,en_nop)
+  s += generate_rr(i,r1,r2,0b10,0b11,0b10,en_nop)
+  s += generate_rr(i,r1,r2,neg_one,31,31,en_nop)
+  s += generate_rr(i,r1,r2,smallest,31,0,en_nop)
+  s += generate_rr(i,r1,r2,neg_one,neg_one,neg_one,en_nop)
+  s += generate_rr(i,r1,r2,smallest,neg_one,smallest,en_nop)
+  s += generate_rr(i,r1,r2,largest,smallest,0,en_nop)
+  s += generate_rr(i,r1,r2,largest,neg_one,largest,en_nop)
+  s += generate_rr(i,r1,r2,largest,0,0,en_nop)
+  return s
+
+def and_all():
+  content = and_generate(False)
+  file_path = "and.asm"
+  with open(file_path, 'w') as file:
+    file.write(content)
+  file.close()
+  content = and_generate(True)
+  file_path = "and_nop.asm"
+  with open(file_path, 'w') as file:
+    file.write(content)
+  file.close()
+
+# and_all()
+
 def or_generate(en_nop):
   i = 'or'
   s = generate_rr(i,r1,r2,0,0,0,en_nop)
@@ -194,7 +222,219 @@ def srl_all():
 
 # srl_all()
 
+def sll_generate(en_nop):
+  i = 'sll'
+  s = generate_rr(i,r1,r2,0,0,0,en_nop)
+  s += generate_rr(i,r1,r2,1,1,2,en_nop)
+  s += generate_rr(i,r1,r2,0b100,3,0b100000,en_nop)
+  s += generate_rr(i,r1,r2,neg_one,31,smallest,en_nop)
+  s += generate_rr(i,r1,r2,smallest,1,0,en_nop)
+  s += generate_rr(i,r1,r2,neg_one,neg_one,smallest,en_nop)
+  s += generate_rr(i,r1,r2,smallest,neg_one,0,en_nop)
+  s += generate_rr(i,r1,r2,0x20,0x80000001,0x40,en_nop)
+  s += generate_rr(i,r1,r2,0b10,1,0b100,en_nop)
+  s += generate_rr(i,r1,r2,0x80000001,2,0x00000004,en_nop)
+  s += generate_rr(i,r1,r2,largest,1,0xfffffffe,en_nop)
+  return s
+
+def sll_all():
+  content = sll_generate(False)
+  file_path = "sll.asm"
+  with open(file_path, 'w') as file:
+    file.write(content)
+  file.close()
+  content = sll_generate(True)
+  file_path = "sll_nop.asm"
+  with open(file_path, 'w') as file:
+    file.write(content)
+  file.close()
+
+# sll_all()
+
+def mul_generate(en_nop):
+  i = 'mul'
+  s = generate_rr(i,r1,r2,0,0,0,en_nop)
+  s += generate_rr(i,r1,r2,1,1,1,en_nop)
+  s += generate_rr(i,r1,r2,1,0,0,en_nop)
+  s += generate_rr(i,r1,r2,neg_one,0,0,en_nop)
+  s += generate_rr(i,r1,r2,smallest,31,smallest,en_nop)
+  s += generate_rr(i,r1,r2,neg_one,2,0xfffffffe,en_nop)
+  s += generate_rr(i,r1,r2,neg_one,56,0xffffffc8,en_nop)
+  s += generate_rr(i,r1,r2,40,40,1600,en_nop)
+  s += generate_rr(i,r1,r2,largest,4,0xfffffffc,en_nop)
+  s += generate_rr(i,r1,r2,0x80000001,2,2,en_nop)
+  s += generate_rr(i,r1,r2,largest,neg_one,0x80000001,en_nop)
+  s += generate_rr(i,r1,r2,neg_one,smallest,smallest,en_nop)
+  s += generate_rr(i,r1,r2,largest,smallest,smallest,en_nop)
+  return s
+
+def mul_all():
+  content = mul_generate(False)
+  file_path = "mul.asm"
+  with open(file_path, 'w') as file:
+    file.write(content)
+  file.close()
+  content = mul_generate(True)
+  file_path = "mul_nop.asm"
+  with open(file_path, 'w') as file:
+    file.write(content)
+  file.close()
+
+# mul_all()
+
 # register-immediate instructions
+
+def generate_rimm(
+    inst, reg1, init1, imm,
+    expected, random_nop_insertion = False
+):
+  init1 = '0x{:x}'.format(init1)
+  imm = '0x{:x}'.format(imm)
+  expected = '0x{:x}'.format(expected)
+  high = 3 if random_nop_insertion else 0
+  inst_asm_string = 'csrr {}, mngr2proc < {}\n'.format(reg1,init1)
+  inst_asm_string += 'nop\n'*random.randint(0,high)
+  inst_asm_string += '{} x3, {}, {}\n'.format(inst,reg1,imm)
+  inst_asm_string += 'nop\n'*random.randint(0,high)
+  inst_asm_string += 'csrw proc2mngr, x3 > {}\n'.format(expected)
+  inst_asm_string += 'nop\n'*random.randint(0,high)
+  return inst_asm_string
+
+def andi_generate(en_nop):
+  i = 'andi'
+  s = generate_rimm(i,r1,0,0,0,en_nop)
+  s += generate_rimm(i,r1,1,1,1,en_nop)
+  s += generate_rimm(i,r1,0b10,0b11,0b10,en_nop)
+  s += generate_rimm(i,r1,neg_one,0b11,0b11,en_nop)
+  s += generate_rimm(i,r1,smallest,1,0,en_nop)
+  s += generate_rimm(i,r1,neg_one,0xfff,neg_one,en_nop)
+  s += generate_rimm(i,r1,smallest,0xfff,smallest,en_nop)
+  s += generate_rimm(i,r1,0b10,0b1,0,en_nop)
+  s += generate_rimm(i,r1,neg_one,0x7ff,0x7ff,en_nop)
+  s += generate_rimm(i,r1,0x80000001,0x7ff,1,en_nop)
+  return s
+
+def andi_all():
+  content = andi_generate(False)
+  file_path = "andi.asm"
+  with open(file_path, 'w') as file:
+    file.write(content)
+  file.close()
+  content = andi_generate(True)
+  file_path = "andi_nop.asm"
+  with open(file_path, 'w') as file:
+    file.write(content)
+  file.close()
+
+andi_all()
+
+def ori_generate(en_nop):
+  i = 'ori'
+  s = generate_rimm(i,r1,0,0,0,en_nop)
+  s += generate_rimm(i,r1,0,1,1,en_nop)
+  s += generate_rimm(i,r1,1,2,3,en_nop)
+  s += generate_rimm(i,r1,largest,0xfff,neg_one,en_nop)
+  s += generate_rimm(i,r1,largest,0,largest,en_nop)
+  s += generate_rimm(i,r1,neg_one,0,neg_one,en_nop)
+  s += generate_rimm(i,r1,smallest,1,0x80000001,en_nop)
+  return s
+
+def ori_all():
+  content = ori_generate(False)
+  file_path = "ori.asm"
+  with open(file_path, 'w') as file:
+    file.write(content)
+  file.close()
+  content = ori_generate(True)
+  file_path = "ori_nop.asm"
+  with open(file_path, 'w') as file:
+    file.write(content)
+  file.close()
+
+ori_all()
+
+def xori_generate(en_nop):
+  i = 'xori'
+  s = generate_rimm(i,r1,0,0,0,en_nop)
+  s += generate_rimm(i,r1,1,1,0,en_nop)
+  s += generate_rimm(i,r1,1,0,1,en_nop)
+  s += generate_rimm(i,r1,1,2,3,en_nop)
+  s += generate_rimm(i,r1,largest,0xfff,smallest,en_nop)
+  s += generate_rimm(i,r1,largest,0,largest,en_nop)
+  s += generate_rimm(i,r1,neg_one,0xf,0xfffffff0,en_nop)
+  s += generate_rimm(i,r1,neg_one,0xfff,0,en_nop)
+  return s
+
+def xori_all():
+  content = xori_generate(False)
+  file_path = "xori.asm"
+  with open(file_path, 'w') as file:
+    file.write(content)
+  file.close()
+  content = xori_generate(True)
+  file_path = "xori_nop.asm"
+  with open(file_path, 'w') as file:
+    file.write(content)
+  file.close()
+
+xori_all()
+
+def slti_generate(en_nop):
+  i = 'slti'
+  s = generate_rimm(i,r1,0,0,0,en_nop)
+  s += generate_rimm(i,r1,1,1,0,en_nop)
+  s += generate_rimm(i,r1,1,0,0,en_nop)
+  s += generate_rimm(i,r1,1,2,1,en_nop)
+  s += generate_rimm(i,r1,largest,0xfff,0,en_nop)
+  s += generate_rimm(i,r1,largest,0,0,en_nop)
+  s += generate_rimm(i,r1,neg_one,0xfff,0,en_nop)
+  s += generate_rimm(i,r1,neg_one,0x7ff,1,en_nop)
+  s += generate_rimm(i,r1,smallest,0,1,en_nop)
+  s += generate_rimm(i,r1,smallest,0xfff,1,en_nop)
+  return s
+
+def slti_all():
+  content = slti_generate(False)
+  file_path = "slti.asm"
+  with open(file_path, 'w') as file:
+    file.write(content)
+  file.close()
+  content = slti_generate(True)
+  file_path = "slti_nop.asm"
+  with open(file_path, 'w') as file:
+    file.write(content)
+  file.close()
+
+slti_all()
+
+def sltiu_generate(en_nop):
+  i = 'sltiu'
+  s = generate_rr(i,r1,r2,0,0,0,en_nop)
+  s += generate_rr(i,r1,r2,1,1,0,en_nop)
+  s += generate_rr(i,r1,r2,1,0,0,en_nop)
+  s += generate_rr(i,r1,r2,1,2,1,en_nop)
+  s += generate_rr(i,r1,r2,largest,neg_one,1,en_nop)
+  s += generate_rr(i,r1,r2,largest,smallest,1,en_nop)
+  s += generate_rr(i,r1,r2,neg_one,smallest,0,en_nop)
+  s += generate_rr(i,r1,r2,neg_one,largest,0,en_nop)
+  s += generate_rr(i,r1,r2,smallest,largest,0,en_nop)
+  s += generate_rr(i,r1,r2,smallest,neg_one,1,en_nop)
+  return s
+
+def sltiu_all():
+  content = sltiu_generate(False)
+  file_path = "sltiu.asm"
+  with open(file_path, 'w') as file:
+    file.write(content)
+  file.close()
+  content = sltiu_generate(True)
+  file_path = "sltiu_nop.asm"
+  with open(file_path, 'w') as file:
+    file.write(content)
+  file.close()
+
+# sltiu_all()
+
 # memory instructions
 # jump instructions
 # branch instructions
