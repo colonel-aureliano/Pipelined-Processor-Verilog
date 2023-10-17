@@ -1,6 +1,10 @@
-# A python file to generate asm file
+# A python script to generate asm file
 # that targets specific instructions one by one
 import random
+
+# This file contains code that generate tests for
+# register-register arithmetic instructions
+# and register-immediate instructions
 
 # register-register arithmetic instructions
 
@@ -610,9 +614,3 @@ def auipc_all():
   file.close()
 
 # auipc_all()
-
-# memory instructions
-
-
-# jump instructions
-# branch instructions
