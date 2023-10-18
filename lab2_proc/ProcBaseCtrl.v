@@ -434,7 +434,7 @@ module lab2_proc_ProcBaseCtrl
       `TINYRV2_INST_BGE     :cs( y, br_bge, imm_b, y, bm_rf,  am_rf,   y, alu_x,   nr, wm_x, em_a,    n,  n,   n    );
       `TINYRV2_INST_BGEU    :cs( y, br_bgeu,imm_b, y, bm_rf,  am_rf,   y, alu_x,   nr, wm_x, em_a,    n,  n,   n    );
       
-      default               :cs( n, br_x,   imm_x, n, bm_x,   am_x,    n, alu_x,   nr, wm_x, em_x,    n,  n,   n    );
+      default               :cs( n, br_x,   imm_x, n, bm_x,   am_x,    n, alu_x,   nr, wm_x, em_a,    n,  n,   n    );
 
     endcase
   end // always_comb

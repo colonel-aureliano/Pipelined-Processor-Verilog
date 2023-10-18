@@ -552,6 +552,20 @@ module top(   input logic clk ,  input logic linetrace  );
   #1
   check_result('h800000b8, "JALR");
 
+  // Test 7
+  in0 = 200;
+  in1 = -14;
+  fn  = 10;
+  #1
+  check_result(186, "JALR");
+  
+  // Test 8
+  in0 = 200;
+  in1 = -15;
+  fn  = 10;
+  #1
+  check_result(184, "JALR");
+
   //======================================
   // Test CP0
   //======================================
