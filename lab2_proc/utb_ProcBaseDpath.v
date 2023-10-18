@@ -1443,7 +1443,7 @@ module top(  input logic clk, input logic linetrace );
     imul_req_val_D = '0;
     reg_en_X =1;
     alu_fn_X =1;
-    ex_result_sel_X =1;
+    ex_result_sel_X =2;
     imul_resp_rdy_X =0;
     reg_en_M =1;
     wb_result_sel_M =1;
@@ -1479,6 +1479,11 @@ module top(  input logic clk, input logic linetrace );
       $display("pc_D is correct.  Expected: %h, Actual: %h", 'h200,DUT.pc_D);pass();
     end else begin
       $display("pc_D is incorrect.  Expected: %h, Actual: %h", 'h200,DUT.pc_D); fail(); $finish();
+    end 
+    assert(DUT.imm_D == 'b11111111111111111111_100010100010) begin
+      $display("imm_D is correct.  Expected: %b, Actual: %b", 'b11111111111111111111_100010100010,DUT.imm_D);pass();
+    end else begin
+      $display("imm_D is incorrect.  Expected: %b, Actual: %b", 'b11111111111111111111_100010100010,DUT.imm_D); fail(); $finish();
     end 
 
     //Advancing time
@@ -1525,8 +1530,6 @@ module top(  input logic clk, input logic linetrace );
     end else begin
       $display("pc_X is incorrect.  Expected: %h, Actual: %h", 'h208,DUT.pc_X); fail(); $finish();
     end 
-    @(negedge clk);
-    @(negedge clk);
     assert(DUT.rf_wdata_W == 'h204) begin
       $display("rf_wdata_W is correct.  Expected: %h, Actual: %h", 'h204,DUT.rf_wdata_W); pass();
     end else begin
