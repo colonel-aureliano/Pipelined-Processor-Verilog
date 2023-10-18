@@ -41,103 +41,126 @@ module top(   input logic clk ,  input logic linetrace  );
     // Set inputs
     imm_type = 0;
     inst     = 'b100101010101_01010_000_10101_0010011;
-
     #1
-
     // Check the result
     check_result('b11111111111111111111_100101010101, "I-type");
 
     // 2. ANDI
     imm_type = 0;
     inst     = 'b000101010101_01010_111_10101_0010011;
-
     #1
-
     // Check the result
     check_result('b000101010101, "I-type"); 
 
     // 3. ORI
     imm_type = 0;
     inst     = 'b111111111111_01010_110_10101_0010011;
-
     #1
-
     // Check the result
     check_result('b11111111111111111111_111111111111, "I-type"); 
 
     // 4. XORI
     imm_type = 0;
     inst     = 'b110000000001_01010_100_10101_0010011;
-
     #1
-
     // Check the result
     check_result('b11111111111111111111_110000000001, "I-type");
 
     // 5. SLTI
     imm_type = 0;
     inst     = 'b00000000011_01010_100_10101_0010011;
-
     #1
-
     // Check the result
     check_result('b00000000011, "I-type"); 
 
     // 6. SLTI
     imm_type = 0;
     inst     = 'b00001000011_01010_010_10101_0010011;
-
     #1
-
     // Check the result
     check_result('b00001000011, "I-type"); 
 
     // 7. SLTIU
     imm_type = 0;
     inst     = 'b111111000011_01010_011_10101_0010011;
-
     #1
-
     // Check the result
     check_result('b11111111111111111111_111111000011, "I-type");
 
     // 8. SRAI
     imm_type = 0;
     inst     = 'b0100000_01001_01010_101_10101_0010011;
-
     #1
-
     // Check the result
     check_result('b000000000000000000000_100000_01001, "I-type");  
 
     // 9. SRLI
     imm_type = 0;
     inst     = 'b0000000_10101_01010_101_10101_0010011;
-
     #1
-
     // Check the result
     check_result('b0000000_10101, "I-type");  
 
     // 10. SLLI
     imm_type = 0;
     inst     = 'b0000000_00101_01010_001_10101_0010011;
-
     #1
-
     // Check the result
     check_result('b0000000_00101, "I-type"); 
 
     // 11. LW
     imm_type = 0;
     inst     = 'b111111001001_10101_010_10101_0000011;
-
     #1
-
     // Check the result
     check_result('b11111111111111111111_111111001001, "I-type"); 
 
-    // TODO: 12. JALR
+    // 12. JALR
+    imm_type = 0;
+    inst     = 'b100010100010_00001_000_00010_1100111;
+    #1
+    // Check the result
+    check_result('b11111111111111111111100010100010, "I-type"); 
+
+    //======================================
+    // Test S-type
+    //======================================
+    // 13. SW
+    imm_type = 1;
+    inst     = 'b1001001_10101_01010_010_10010_0100011;
+    #1
+    // Check the result
+    check_result('b111111111111111111111_001001_10010, "S-type"); 
+
+    // 14. BLT
+    imm_type = 1;
+    inst     = 'b0111111_10101_01010_100_11111_1100011;
+    #1
+    // Check the result
+    check_result('b0_111111_11111, "S-type"); 
+
+    // 15. BGE
+    imm_type = 1;
+    inst     = 'b1000000_10101_01010_101_11111_1100011;
+    #1
+    // Check the result
+    check_result('b111111111111111111111_000000_11111, "S-type"); 
+
+    // 16. BLTU
+    imm_type = 1;
+    inst     = 'b0000010_10101_01010_110_01110_1100011;
+    #1
+    // Check the result
+    check_result('b0_000010_01110, "S-type"); 
+
+    // 17. BGEU
+    imm_type = 1;
+    inst     = 'b1010010_10101_01010_111_01110_1100011;
+    #1
+    // Check the result
+    check_result('b111111111111111111111_010010_01110, "S-type"); 
+
+
   
     $finish();
 
