@@ -96,4 +96,79 @@ def load_store_all():
 # load_store_all()
 
 # jump instructions
+
+def generate_jal_jalr(
+    imm1, expected1, reg2, init2, imm2,
+    expected2):
+  init2 = '0x{:x}'.format(init2)
+  expected1 = '0x{:x}'.format(expected1)
+  expected2 = '0x{:x}'.format(expected2)
+  inst_asm_string = 'jal x3, {}\n'.format(imm1)
+  inst_asm_string += 'nop\n'*int(imm1/4-1)
+  inst_asm_string += 'csrw proc2mngr, x3 > {}\n'.format(expected1)
+  inst_asm_string += 'csrr {}, mngr2proc < {}\n'.format(reg2,init2)
+  inst_asm_string += 'jalr x3, {}, {}\n'.format(reg2,imm2)
+  inst_asm_string += 'csrw proc2mngr, x3 > {}\n'.format(expected2)
+  return inst_asm_string
+
+def jal_jalr_generate():
+  s = generate_jal_jalr(8,0x204,r1,0x20c,8,0x214)
+  s += generate_jal_jalr(16,0x21c,r1,0x214,8,0x234)
+  return s
+
+def jal_jalr_all():
+  content = jal_jalr_generate()
+  file_path = "jal_jalr.asm"
+  with open(file_path, 'w') as file:
+    file.write(content)
+  file.close()
+
+# jal_jalr_all()
+
 # branch instructions
+
+# def generate_rimm(
+#     inst, reg1, init1, imm,
+#     expected, random_nop_insertion = False
+# ):
+#   init1 = '0x{:x}'.format(init1)
+#   imm = '0x{:x}'.format(imm)
+#   expected = '0x{:x}'.format(expected)
+#   high = 3 if random_nop_insertion else 0
+#   inst_asm_string = 'csrr {}, mngr2proc < {}\n'.format(reg1,init1)
+#   inst_asm_string += 'nop\n'*random.randint(0,high)
+#   inst_asm_string += '{} x3, {}, {}\n'.format(inst,reg1,imm)
+#   inst_asm_string += 'nop\n'*random.randint(0,high)
+#   inst_asm_string += 'csrw proc2mngr, x3 > {}\n'.format(expected)
+#   inst_asm_string += 'nop\n'*random.randint(0,high)
+#   return inst_asm_string
+
+# neg_one = 0xffffffff
+# largest = 0x7fffffff
+# smallest = 0x80000000
+
+# def beq_generate(en_nop):
+#   i = 'beq'
+#   s = generate_rimm(i,r1,0,0,0,en_nop)
+#   s += generate_rimm(i,r1,1,1,1,en_nop)
+#   s += generate_rimm(i,r1,0b10,0b11,0b10,en_nop)
+#   s += generate_rimm(i,r1,neg_one,0b11,0b11,en_nop)
+#   s += generate_rimm(i,r1,smallest,1,0,en_nop)
+#   s += generate_rimm(i,r1,neg_one,0xfff,neg_one,en_nop)
+#   s += generate_rimm(i,r1,smallest,0xfff,smallest,en_nop)
+#   s += generate_rimm(i,r1,0b10,0b1,0,en_nop)
+#   s += generate_rimm(i,r1,neg_one,0x7ff,0x7ff,en_nop)
+#   s += generate_rimm(i,r1,0x80000001,0x7ff,1,en_nop)
+#   return s
+
+# def beq_all():
+#   content = beq_generate(False)
+#   file_path = "beq.asm"
+#   with open(file_path, 'w') as file:
+#     file.write(content)
+#   file.close()
+#   content = beq_generate(True)
+#   file_path = "beq_nop.asm"
+#   with open(file_path, 'w') as file:
+#     file.write(content)
+#   file.close()
