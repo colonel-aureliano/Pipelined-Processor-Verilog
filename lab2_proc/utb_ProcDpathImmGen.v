@@ -132,35 +132,73 @@ module top(   input logic clk ,  input logic linetrace  );
     // Check the result
     check_result('b111111111111111111111_001001_10010, "S-type"); 
 
+    //======================================
+    // Test B-type
+    //======================================
+
     // 14. BLT
-    imm_type = 1;
+    imm_type = 2;
     inst     = 'b0111111_10101_01010_100_11111_1100011;
     #1
     // Check the result
-    check_result('b0_111111_11111, "S-type"); 
+    check_result('b00_1_111111_1111_0, "B-type"); 
 
     // 15. BGE
-    imm_type = 1;
-    inst     = 'b1000000_10101_01010_101_11111_1100011;
+    imm_type = 2;
+    inst     = 'b0010101_00001_10000_101_10000_1100011;
     #1
     // Check the result
-    check_result('b111111111111111111111_000000_11111, "S-type"); 
+    check_result('b00_0_010101_1000_0, "B-type");  
 
     // 16. BLTU
-    imm_type = 1;
+    imm_type = 2;
     inst     = 'b0000010_10101_01010_110_01110_1100011;
     #1
     // Check the result
-    check_result('b0_000010_01110, "S-type"); 
+    check_result('b00_0_000010_0111_0, "B-type"); 
 
     // 17. BGEU
-    imm_type = 1;
+    imm_type = 2;
     inst     = 'b1010010_10101_01010_111_01110_1100011;
     #1
     // Check the result
-    check_result('b111111111111111111111_010010_01110, "S-type"); 
+    check_result('b11111111111111111111_0_010010_0111_0, "B-type"); 
 
+    // 18. BEQ
+    imm_type = 2;
+    inst     = 'b1010101_00001_10000_000_10001_1100011;
+    #1
+    // Check the result
+    check_result('b11111111111111111111_1_010101_1000_0, "B-type");
 
+    //======================================
+    // Test U-type
+    //======================================
+
+    // 19. LUI
+    imm_type = 3;
+    inst     = 'b00000000000000010110_00100_0110111;
+    #1
+    // Check the result
+    check_result('b00010110000000000000, "U-type");
+
+    // 20. AUIPC
+    imm_type = 3;
+    inst     = 'b00000000000111111111_00100_0010111;
+    #1
+    // Check the result
+    check_result('b00000000000111111111_000000000000, "U-type");
+
+    //======================================
+    // Test J-type
+    //======================================
+
+    // 21. JAL
+    imm_type = 4;
+    inst     = 'b10100000000000010110_00100_1101111;
+    #1
+    // Check the result
+    check_result('b111111111111_00010110_0_010000_0000_0, "J-type");
   
     $finish();
 
