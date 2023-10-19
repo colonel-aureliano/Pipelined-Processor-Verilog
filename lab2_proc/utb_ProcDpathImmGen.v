@@ -132,6 +132,22 @@ module top(   input logic clk ,  input logic linetrace  );
     // Check the result
     check_result('b111111111111111111111_001001_10010, "S-type"); 
 
+    // another SW
+    imm_type = 1;
+    inst     = 'b0110110_01010_10101_010_01101_0100011;
+    #1
+    // Check the result
+    check_result('b0_110110_01101, "S-type"); 
+
+    // another SW
+    imm_type = 1;
+    inst     = 'b1110110_01010_10101_010_01101_0100011;
+    #1
+    // Check the result
+    check_result('b111111111111111111111_110110_01101, "S-type"); 
+
+    @(negedge clk);
+    
     //======================================
     // Test B-type
     //======================================
@@ -199,6 +215,16 @@ module top(   input logic clk ,  input logic linetrace  );
     #1
     // Check the result
     check_result('b111111111111_00010110_0_010000_0000_0, "J-type");
+
+    //======================================
+    // Test Default
+    //======================================
+
+    imm_type = 3'd5;
+    inst     = 'b10100000000000010110_00100_1101111;
+    #1
+    // Check the result
+    check_result(32'bx, "Default don't care");
   
     $finish();
 
