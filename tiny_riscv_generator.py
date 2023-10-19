@@ -4,14 +4,15 @@ import random
 instruction_formats = {
     "r": ["add", "sub", "mul", "and", "or", "xor", "slt", "sltu", "sra", "srl", "sll"],
     "i": ["addi", "ori", "andi", "xori", "slti", "sltiu"],
-    "mem": ["lw", "sw"],
-    "jump": ["jalr"],
+    "jump": ["jal"],
     "branch": ["bne", "beq", "blt", "bltu", "bge", "bgeu"],
-    "immediate": ["lui", "auipc", "jal", "srai", "srli", "slli"]
+    "immediate": ["lui", "auipc", "srai", "srli", "slli"]
 }
 
+num_reg = 20
+
 # Define the list of available registers
-registers = [f'x{i}' for i in range(1, 32)]
+registers = [f'x{i}' for i in range(1, num_reg+1)]
 
 # Function to generate a random instruction
 def generate_random_instruction():
@@ -31,7 +32,7 @@ def generate_random_5bit_immediate():
     return random.randint(0, 31)  # 31 is 2^5 - 1
 
 def generate_random_address():
-    return random.choice(range(0,36,4))
+    return random.choice(range(0,24,4))
 
 # Function to generate a random 20-bit immediate value
 def generate_random_20bit_immediate():
@@ -40,7 +41,7 @@ def generate_random_20bit_immediate():
 # Function to initialize registers with nonzero values using "addi"
 def initialize_registers_with_addi():
     register_initializations = []
-    for i in range(31):
+    for i in range(num_reg):
         value = random.randint(1, 4095)  # Generate a random nonzero value
         register_initializations.append(f"addi {registers[i]}, x0, {value}")
     return register_initializations
@@ -72,11 +73,9 @@ def generate_instructions_to_file(n, filename):
                 file.write(f"addi {register2}, x0, 0\n")
                 file.write(f"{random_instruction} {register1}, {immediate}({register2})\n")
             elif format == "jump":
-                if random_instruction == "jalr":
-                    register1 = generate_random_register()
-                    register2 = generate_random_register()
-                    immediate = generate_random_address()
-                    file.write(f"{random_instruction} {register1}, {register2}, {immediate}\n")
+                register1 = generate_random_register()
+                immediate = generate_random_address()
+                file.write(f"{random_instruction} {register1}, {immediate}\n")
             elif format == "branch":
                 register1 = generate_random_register()
                 register2 = generate_random_register()
@@ -96,8 +95,11 @@ def generate_instructions_to_file(n, filename):
                     register2 = generate_random_register()
                     immediate = generate_random_5bit_immediate()
                     file.write(f"{random_instruction} {register1}, {register2}, {immediate}\n")
+        file.write("lui x1, 0x2000\n")
+        for i in range(2,num_reg+1):
+            file.write("sw x"+str(i)+", "+str((i-2)*4)+"(x1)\n")
 
 # Generate and save n lines of random instructions to a text file
-n = 10
-filename = "random_instructions.txt"  # Specify the filename
+n = 20
+filename = "lab2_proc/asm/random6.asm"  # Specify the filename
 generate_instructions_to_file(n, filename)
