@@ -1,13 +1,13 @@
 //========================================================================
-// utb_ProcBaseDpath
+// utb_ProcAltDpath
 //========================================================================
-// A basic Verilog unit test bench for the Processor Baseline Datapath module
+// A basic Verilog unit test bench for the Processor Alternative Datapath module
 
 `default_nettype none
 `timescale 1ps/1ps
 
 
-`include "ProcBaseDpath.v"
+`include "ProcAltDpath.v"
 `include "vc/trace.v"
 
 //------------------------------------------------------------------------
@@ -40,7 +40,9 @@ module top(  input logic clk, input logic linetrace );
   logic [1:0]   pc_sel_F;
 
   logic         reg_en_D;
+  logic [1:0]   op1_byp_sel_D;
   logic         op1_sel_D;
+  logic [1:0]   op2_byp_sel_D;
   logic [1:0]   op2_sel_D;
   logic [1:0]   csrr_sel_D;
   logic [2:0]   imm_type_D;
@@ -80,7 +82,7 @@ module top(  input logic clk, input logic linetrace );
   //----------------------------------------------------------------------
   
   // Instantiate the processor datapath
-  lab2_proc_ProcBaseDpath 
+  lab2_proc_ProcAltDpath 
   #(
     .p_num_cores( 1)
   )
@@ -124,6 +126,10 @@ module top(  input logic clk, input logic linetrace );
     stats_en_wen_W =0;
     core_id = '0;
     reset = 1;
+
+    op1_byp_sel_D = 2'd3; // nobypass
+    op2_byp_sel_D = 2'd3;
+
     #10
 
     //--------------------------------------------------------------------
@@ -230,6 +236,10 @@ module top(  input logic clk, input logic linetrace );
     stats_en_wen_W =0;
     core_id = '0;
     reset = 1;
+
+    op1_byp_sel_D = 2'd3; // nobypass
+    op2_byp_sel_D = 2'd3;
+
     #10
 
     //--------------------------------------------------------------------
@@ -367,6 +377,9 @@ module top(  input logic clk, input logic linetrace );
     stats_en_wen_W =0;
     core_id = '0;
     reset = 1;
+
+    op1_byp_sel_D = 2'd3; // nobypass
+    op2_byp_sel_D = 2'd3;
     
     #10
 
@@ -501,6 +514,10 @@ module top(  input logic clk, input logic linetrace );
     stats_en_wen_W =0;
     core_id = '0;
     reset = 1;
+
+    op1_byp_sel_D = 2'd3; // nobypass
+    op2_byp_sel_D = 2'd3;
+
     #10
 
     //--------------------------------------------------------------------
@@ -637,6 +654,9 @@ module top(  input logic clk, input logic linetrace );
     core_id = '0;
     reset = 1;
 
+    op1_byp_sel_D = 2'd3; // nobypass
+    op2_byp_sel_D = 2'd3;
+
     #10
 
     // Align test bench with negedge so that it looks better
@@ -722,6 +742,9 @@ module top(  input logic clk, input logic linetrace );
     stats_en_wen_W =0;
     core_id = '0;
     reset = 1;
+
+    op1_byp_sel_D = 2'd3; // nobypass
+    op2_byp_sel_D = 2'd3;
 
     #10
 
@@ -811,6 +834,9 @@ module top(  input logic clk, input logic linetrace );
     core_id = '0;
     reset = 1;
 
+    op1_byp_sel_D = 2'd3; // nobypass
+    op2_byp_sel_D = 2'd3;
+
     #10
 
     // Align test bench with negedge so that it looks better
@@ -898,6 +924,9 @@ module top(  input logic clk, input logic linetrace );
     stats_en_wen_W =0;
     core_id = '0;
     reset = 1;
+
+    op1_byp_sel_D = 2'd3; // nobypass
+    op2_byp_sel_D = 2'd3;
 
     #10
 
@@ -1023,6 +1052,9 @@ module top(  input logic clk, input logic linetrace );
     core_id = '0;
     reset = 1;
 
+    op1_byp_sel_D = 2'd3; // nobypass
+    op2_byp_sel_D = 2'd3;
+
     #10
 
     // Align test bench with negedge so that it looks better
@@ -1147,6 +1179,9 @@ module top(  input logic clk, input logic linetrace );
     core_id = '0;
     reset = 1;
 
+    op1_byp_sel_D = 2'd3; // nobypass
+    op2_byp_sel_D = 2'd3;
+
     #10
 
     // Align test bench with negedge so that it looks better
@@ -1270,6 +1305,9 @@ module top(  input logic clk, input logic linetrace );
     core_id = '0;
     reset = 1;
 
+    op1_byp_sel_D = 2'd3; // nobypass
+    op2_byp_sel_D = 2'd3;
+
     #10
 
     // Align test bench with negedge so that it looks better
@@ -1354,6 +1392,9 @@ module top(  input logic clk, input logic linetrace );
     stats_en_wen_W =0;
     core_id = '0;
     reset = 1;
+
+    op1_byp_sel_D = 2'd3; // nobypass
+    op2_byp_sel_D = 2'd3;
 
     #10
 
@@ -1453,6 +1494,10 @@ module top(  input logic clk, input logic linetrace );
     stats_en_wen_W =0;
     core_id = '0;
     reset = 1;
+
+    op1_byp_sel_D = 2'd3; // nobypass
+    op2_byp_sel_D = 2'd3;
+
     #10
 
     // Align test bench with negedge so that it looks better
@@ -1572,6 +1617,9 @@ module top(  input logic clk, input logic linetrace );
     core_id = '0;
     reset = 1;
 
+    op1_byp_sel_D = 2'd3; // nobypass
+    op2_byp_sel_D = 2'd3;
+
     #10
 
     // Align test bench with negedge so that it looks better
@@ -1686,6 +1734,9 @@ module top(  input logic clk, input logic linetrace );
     core_id = '0;
     reset = 1;
 
+    op1_byp_sel_D = 2'd3; // nobypass
+    op2_byp_sel_D = 2'd3;
+
     #10
 
     // Align test bench with negedge so that it looks better
@@ -1799,6 +1850,9 @@ module top(  input logic clk, input logic linetrace );
     stats_en_wen_W =0;
     core_id = '0;
     reset = 1;
+
+    op1_byp_sel_D = 2'd3; // nobypass
+    op2_byp_sel_D = 2'd3;
 
     #10
 
