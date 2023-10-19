@@ -659,6 +659,19 @@ module top(   input logic clk ,  input logic linetrace  );
   check_result('d14, "CP1");
 
 
+  //======================================
+  // Test Default
+  //======================================
+
+  // Test 1
+  in0 = 5;
+  in1 = 3;
+  fn  = 4'd13;
+  #1
+  check_result(0, "Default to 0");
+
+
+
   $finish();
   end
 
