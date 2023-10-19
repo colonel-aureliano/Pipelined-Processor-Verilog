@@ -23,7 +23,7 @@ jal x3, 12
 jal x2, 12
 bltu x2, x1, 16
 addi x1, x2, 2949
-lui x1, 0x2000
+lui x1, 0x0002
 sw x2, 0(x1)
 sw x3, 4(x1)
 sw x4, 8(x1)

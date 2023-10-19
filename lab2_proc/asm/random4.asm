@@ -38,7 +38,7 @@ xor x11, x6, x4
 slli x9, x7, 15
 slli x5, x11, 8
 srli x4, x5, 17
-lui x1, 0x2000
+lui x1, 0x0002
 sw x2, 0(x1)
 sw x3, 4(x1)
 sw x4, 8(x1)

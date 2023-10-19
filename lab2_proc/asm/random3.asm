@@ -38,7 +38,7 @@ and x4, x4, x13
 srai x12, x8, 11
 mul x11, x16, x17
 srli x6, x13, 19
-lui x1, 0x2000
+lui x1, 0x0002
 sw x2, 0(x1)
 sw x3, 4(x1)
 sw x4, 8(x1)
