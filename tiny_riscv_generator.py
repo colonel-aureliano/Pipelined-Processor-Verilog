@@ -4,12 +4,12 @@ import random
 instruction_formats = {
     "r": ["add", "sub", "mul", "and", "or", "xor", "slt", "sltu", "sra", "srl", "sll"],
     "i": ["addi", "ori", "andi", "xori", "slti", "sltiu"],
-    "jump": ["jal"],
-    "branch": ["bne", "beq", "blt", "bltu", "bge", "bgeu"],
+    # "jump": ["jal"],
+    # "branch": ["bne", "beq", "blt", "bltu", "bge", "bgeu"],
     "immediate": ["lui", "auipc", "srai", "srli", "slli"]
 }
 
-num_reg = 20
+num_reg = 3
 
 # Define the list of available registers
 registers = [f'x{i}' for i in range(1, num_reg+1)]
@@ -95,11 +95,11 @@ def generate_instructions_to_file(n, filename):
                     register2 = generate_random_register()
                     immediate = generate_random_5bit_immediate()
                     file.write(f"{random_instruction} {register1}, {register2}, {immediate}\n")
-        file.write("lui x1, 0x2000\n")
+        file.write("lui x1, 0x0002\n")
         for i in range(2,num_reg+1):
             file.write("sw x"+str(i)+", "+str((i-2)*4)+"(x1)\n")
 
 # Generate and save n lines of random instructions to a text file
-n = 20
-filename = "lab2_proc/asm/random6.asm"  # Specify the filename
+n = 40
+filename = "lab2_proc/asm/hazard10.asm"  # Specify the filename
 generate_instructions_to_file(n, filename)

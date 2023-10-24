@@ -1665,21 +1665,7 @@ module top(  input logic clk, input logic linetrace );
     #10
 
     //--------------------------------------------------------------------
-    // Unit Testing #11  Branch
-    //--------------------------------------------------------------------
-    // Align test bench with negedge so that it looks better
-    @(negedge clk); 
-    reset = 0;
-    imem_respstream_val = 1;
-    @(negedge clk);
-    // nop at F stage 
-    @(negedge clk);
-    inst_D = 32'h00419663;
-        reset = 1;
-    #10
-
-    //--------------------------------------------------------------------
-    // Unit Testing #7  Register-register
+    // Unit Testing #11  Register-register
     //--------------------------------------------------------------------
     // Align test bench with negedge so that it looks better
     @(negedge clk); 
@@ -1854,7 +1840,7 @@ module top(  input logic clk, input logic linetrace );
     #10
 
     //--------------------------------------------------------------------
-    // Unit Testing #8  Register-immediate
+    // Unit Testing #12  Register-immediate
     //--------------------------------------------------------------------
     // Align test bench with negedge so that it looks better
     @(negedge clk); 
@@ -2013,7 +1999,7 @@ module top(  input logic clk, input logic linetrace );
     #10
 
     //--------------------------------------------------------------------
-    // Unit Testing #8  Branch
+    // Unit Testing #13  Branch
     //--------------------------------------------------------------------
     // Align test bench with negedge so that it looks better
     @(negedge clk); 
@@ -2114,6 +2100,12 @@ module top(  input logic clk, input logic linetrace );
     end else begin
       $display("reg_en_D is incorrect.  Expected: %h, Actual: %h", 'h1,DUT.reg_en_D); fail(); $finish();
     end 
+    reset = 1;
+    #10;
+    @(negedge clk); 
+    reset = 0;
+    imem_respstream_val = 1;
+    @(negedge clk);
     @(negedge clk);
     inst_D = 32'h0041d663;
     #1
@@ -2147,6 +2139,115 @@ module top(  input logic clk, input logic linetrace );
     end else begin
       $display("reg_en_D is incorrect.  Expected: %h, Actual: %h", 'h1,DUT.reg_en_D); fail(); $finish();
     end 
+
+    reset = 1;
+    #10
+
+    //--------------------------------------------------------------------
+    // Unit Testing #14  Imem Resp Not Valid
+    //--------------------------------------------------------------------
+    // Align test bench with negedge so that it looks better
+    @(negedge clk); 
+    reset = 0;
+    imem_respstream_val = 0;
+    #1
+    @(negedge clk);
+    assert(DUT.ostall_F == 1) begin
+      $display("ostall_F is correct.  Expected: %h, Actual: %h", 'h1,DUT.ostall_F); pass();
+    end else begin
+      $display("ostall_F is incorrect.  Expected: %h, Actual: %h", 'h1,DUT.ostall_F); fail(); $finish();
+    end 
+    @(negedge clk);
+    @(negedge clk);
+    assert(DUT.ostall_F == 1) begin
+      $display("ostall_F is correct.  Expected: %h, Actual: %h", 'h1,DUT.ostall_F); pass();
+    end else begin
+      $display("ostall_F is incorrect.  Expected: %h, Actual: %h", 'h1,DUT.ostall_F); fail(); $finish();
+    end 
+    @(negedge clk);
+    imem_respstream_val = 1;
+    #1
+    assert(DUT.ostall_F == 0) begin
+      $display("ostall_F is correct.  Expected: %h, Actual: %h", 'h0,DUT.ostall_F); pass();
+    end else begin
+      $display("ostall_F is incorrect.  Expected: %h, Actual: %h", 'h0,DUT.ostall_F); fail(); $finish();
+    end 
+
+    reset = 1;
+    #10
+
+    //--------------------------------------------------------------------
+    // Unit Testing #15  CSRR, CSRW
+    //--------------------------------------------------------------------
+    // Align test bench with negedge so that it looks better
+    imem_reqstream_rdy = 0;
+     @(negedge clk); 
+    reset = 0;
+    imem_reqstream_rdy = 1;
+    imem_respstream_val = 1;
+    @(negedge clk);
+    @(negedge clk);
+    inst_D = 32'b1111_1100_0000_00000_010_00001_1110011; // csrr
+    mngr2proc_val = 0;
+    #1
+    assert(DUT.reg_en_D == 0) begin
+      $display("reg_en_D is correct.  Expected: %h, Actual: %h", 'h0,DUT.reg_en_D); pass();
+    end else begin
+      $display("reg_en_D is incorrect.  Expected: %h, Actual: %h", 'h0,DUT.reg_en_D); fail(); $finish();
+    end
+    @(negedge clk);
+    inst_D = 32'b1111_1100_0000_00000_010_00001_1110011;
+    mngr2proc_val = 1;
+    #1
+    assert(DUT.reg_en_D == 1) begin
+      $display("reg_en_D is correct.  Expected: %h, Actual: %h", 'h1,DUT.reg_en_D); pass();
+    end else begin
+      $display("reg_en_D is incorrect.  Expected: %h, Actual: %h", 'h1,DUT.reg_en_D); fail(); $finish();
+    end
+    assert(DUT.csrr_sel_D == 0) begin
+      $display("csrr_sel_D is correct.  Expected: %h, Actual: %h", 'h0,DUT.csrr_sel_D); pass();
+    end else begin
+      $display("csrr_sel_D is incorrect.  Expected: %h, Actual: %h", 'h0,DUT.csrr_sel_D); fail(); $finish();
+    end
+    assert(DUT.op2_sel_D == 2) begin
+      $display("op2_sel_D is correct.  Expected: %h, Actual: %h", 'h2,DUT.op2_sel_D); pass();
+    end else begin
+      $display("op2_sel_D is incorrect.  Expected: %h, Actual: %h", 'h2,DUT.op2_sel_D); fail(); $finish();
+    end
+    @(negedge clk);
+    inst_D = 32'b0111_1100_0000_00001_001_00000_1110011; // csrw
+    #1
+    assert(DUT.reg_en_D == 1) begin
+      $display("reg_en_D is correct.  Expected: %h, Actual: %h", 'h1,DUT.reg_en_D); pass();
+    end else begin
+      $display("reg_en_D is incorrect.  Expected: %h, Actual: %h", 'h1,DUT.reg_en_D); fail(); $finish();
+    end
+    assert(DUT.op1_sel_D == 0) begin
+      $display("op1_sel_D is correct.  Expected: %h, Actual: %h", 'h0,DUT.op1_sel_D); pass();
+    end else begin
+      $display("op1_sel_D is incorrect.  Expected: %h, Actual: %h", 'h0,DUT.op1_sel_D); fail(); $finish();
+    end
+    @(negedge clk);
+    @(negedge clk);
+    @(negedge clk);
+    // csrw at W
+    proc2mngr_rdy = 0;
+    #1
+    assert(DUT.ostall_W == 1) begin
+      $display("ostall_W is correct.  Expected: %h, Actual: %h", 'h1,DUT.ostall_W); pass();
+    end else begin
+      $display("ostall_W is incorrect.  Expected: %h, Actual: %h", 'h1,DUT.ostall_W); fail(); $finish();
+    end 
+    @(negedge clk);
+    @(negedge clk);
+    proc2mngr_rdy = 1;
+    #1
+    assert(DUT.ostall_W == 0) begin
+      $display("ostall_W is correct.  Expected: %h, Actual: %h", 'h0,DUT.ostall_W); pass();
+    end else begin
+      $display("ostall_W is incorrect.  Expected: %h, Actual: %h", 'h0,DUT.ostall_W); fail(); $finish();
+    end 
+
 
     #50
 

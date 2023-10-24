@@ -26,7 +26,7 @@ module lab2_proc_ProcAltCtrl
 
   output logic        dmem_reqstream_val,
   input  logic        dmem_reqstream_rdy,
-  output logic [2:0]  dmem_reqstream_msg_type,
+  output logic [2:0]  dmem_reqstream_msg_type, // not toggled because TinyRV2 doesn't need it
   input  logic        dmem_respstream_val,
   output logic        dmem_respstream_rdy,
 
@@ -47,7 +47,8 @@ module lab2_proc_ProcAltCtrl
   output logic [1:0]  op2_byp_sel_D,
   output logic        op1_sel_D,
   output logic [1:0]  op1_byp_sel_D,
-  output logic [1:0]  csrr_sel_D,
+  output logic [1:0]  csrr_sel_D,   
+  // not toggled because num_cores and core_id are not used in lab 2
   output logic [2:0]  imm_type_D,
   output logic        imul_req_val_D,
 
@@ -62,7 +63,9 @@ module lab2_proc_ProcAltCtrl
   output logic        reg_en_W,
   output logic [4:0]  rf_waddr_W,
   output logic        rf_wen_W,
-  output logic        stats_en_wen_W,
+  output logic        stats_en_wen_W, 
+  // not covered because it's not part of lab 2, the same goes for this
+  // signal in other pipeline stages
 
   // status signals (dpath->ctrl)
 
@@ -473,6 +476,7 @@ module lab2_proc_ProcAltCtrl
   // csrr and csrw logic
 
   always_comb begin
+    // many not covered because not used in lab 2
     proc2mngr_val_D  = 1'b0;
     mngr2proc_rdy_D  = 1'b0;
     csrr_sel_D       = 2'h0;
