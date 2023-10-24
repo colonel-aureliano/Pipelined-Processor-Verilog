@@ -1171,6 +1171,36 @@ module top(  input logic clk, input logic linetrace );
     end else begin
       $display("rf_wen_W is incorrect.  Expected: %h, Actual: %h", 'h1,DUT.rf_wen_W); fail(); $finish();
     end
+    @(negedge clk); 
+    reset = 1;
+    #10
+    @(negedge clk); 
+    reset = 0;
+    imem_respstream_val = 1;
+    @(negedge clk);
+    // lw at F stage 
+    @(negedge clk);
+    inst_D = 32'h00002383; // lw x7, 0(x0)
+    #1
+    // lw at D stage
+    assert(DUT.reg_en_D == 1) begin
+      $display("reg_en_D is correct.  Expected: %h, Actual: %h", 'h1,DUT.reg_en_D); pass();
+    end else begin
+      $display("reg_en_D is incorrect.  Expected: %h, Actual: %h", 'h1,DUT.reg_en_D); fail(); $finish();
+    end 
+    @(negedge clk);
+    inst_D = 32'h00138133; // add x2, x7, x1
+    #1
+    // add at D stage
+    assert(DUT.reg_en_D == 0) begin
+      $display("reg_en_D is correct.  Expected: %h, Actual: %h", 'h0,DUT.reg_en_D); pass();
+    end else begin
+      $display("reg_en_D is incorrect.  Expected: %h, Actual: %h", 'h0,DUT.reg_en_D); fail(); $finish();
+    end 
+    // load use stall triggered
+
+    reset = 1;
+    #10
 
     //--------------------------------------------------------------------
     // Unit Testing #6  NOP has correct signals
