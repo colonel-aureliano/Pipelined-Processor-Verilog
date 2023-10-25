@@ -346,7 +346,7 @@ module lab2_proc_ProcBaseCtrl
   logic       csrw_D;
   logic       proc2mngr_val_D;
   logic       mngr2proc_rdy_D;
-  logic       stats_en_wen_D;
+  logic       stats_en_wen_D; // not used in lab 2
 
   task cs
   (
@@ -450,7 +450,7 @@ module lab2_proc_ProcBaseCtrl
   // csrr and csrw logic
 
   always_comb begin
-    // many not covered because not used in lab 2
+    // many not used in lab 2
     proc2mngr_val_D  = 1'b0;
     mngr2proc_rdy_D  = 1'b0;
     csrr_sel_D       = 2'h0;
@@ -565,7 +565,7 @@ module lab2_proc_ProcBaseCtrl
   logic        rf_wen_X;
   logic [4:0]  rf_waddr_X;
   logic        proc2mngr_val_X;
-  logic        stats_en_wen_X;
+  logic        stats_en_wen_X; // not used in lab 2
   logic [3:0]  br_type_X;
 
   // Pipeline registers
@@ -679,7 +679,7 @@ module lab2_proc_ProcBaseCtrl
   logic        rf_wen_M;
   logic [4:0]  rf_waddr_M;
   logic        proc2mngr_val_M;
-  logic        stats_en_wen_M;
+  logic        stats_en_wen_M; // not used in lab 2
 
   // Pipeline register
 
@@ -726,7 +726,7 @@ module lab2_proc_ProcBaseCtrl
   logic [31:0] inst_W;
   logic        proc2mngr_val_W;
   logic        rf_wen_pending_W;
-  logic        stats_en_wen_pending_W;
+  logic        stats_en_wen_pending_W; // not used in lab 2
 
   // Pipeline registers
 
