@@ -496,7 +496,7 @@ module lab2_proc_ProcAltCtrl
 
   // mngr2proc_rdy signal for csrr instruction
 
-  assign mngr2proc_rdy = val_D && !stall_D && mngr2proc_rdy_D;
+  assign mngr2proc_rdy = val_D && !stall_D && mngr2proc_rdy_D && !squash_D;
 
   logic  ostall_mngr2proc_D;
   assign ostall_mngr2proc_D = val_D && mngr2proc_rdy_D && !mngr2proc_val;
