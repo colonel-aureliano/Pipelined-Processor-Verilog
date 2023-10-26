@@ -1944,6 +1944,356 @@ module top(  input logic clk, input logic linetrace );
     //--------------------------------------------------------------------
     // TODO: test it!
 
+    //====================================================================
+    //===                                                              ===
+    //===        Start the unit tests that include bypassing           ===
+    //===                                                              ===
+    //====================================================================
+
+    //-------------------------------------------------------------------
+    // Bypass @ X
+    //-------------------------------------------------------------------
+    // Instruction:
+    //  addi x3, x0, 3
+    //  addi x4, x0, 4
+    //  addi x5, x0, 5
+    //  addi x6, x0, 6
+    //  add  x4, x5, x6 => x4 = 11
+    //  add  x4, x4, x3 => x4 = 14
+
+  $display("Bypass @ X instruction testing");
+    // Initalize all the signal inital values.
+    imem_respstream_msg.type_ = `VC_MEM_RESP_MSG_TYPE_READ;
+    imem_respstream_msg.opaque = 8'b0;
+    imem_respstream_msg.test = 2'b0;
+    imem_respstream_msg.len    = 2'd0;
+    imem_respstream_msg.data   = 32'b000000000011_00000_000_00011_0010011; // addi x3, x0, 3
+    dmem_respstream_msg_data = '0;
+    mngr2proc_data= '0;
+    imem_respstream_drop = '0;
+    reg_en_F = 1;
+    pc_sel_F = '0;
+    reg_en_D = 1;
+    op1_sel_D = 0;
+    op2_sel_D = '0;
+    csrr_sel_D = '0;
+    imm_type_D = '0;
+    imul_req_val_D = '0;
+    reg_en_X =1;
+    alu_fn_X =0;
+    ex_result_sel_X =1;
+    imul_resp_rdy_X =0;
+    reg_en_M =1;
+    wb_result_sel_M =1;
+    reg_en_W =1;
+    rf_waddr_W ='0;
+    rf_wen_W = '0;
+    stats_en_wen_W =0;
+    core_id = '0;
+    reset = 1;
+
+    op1_byp_sel_D = 2'd3; // nobypass
+    op2_byp_sel_D = 2'd3; // nobypass
+
+    #10
+
+    // Align test bench with negedge so that it looks better
+    @(negedge clk); 
+    reset = 0;
+    @(negedge clk); 
+    $display( "Advancing time, addi x3, x0, 3 F");
+
+    //Advancing time
+    $display( "Advancing time, addi x3, x0, 3 D");
+    @(negedge clk); 
+    op2_sel_D  = 2'b01; // choose sext(imm)
+    imm_type_D = '0; // I-type imm-type
+
+    rf_waddr_W ='d3;
+    rf_wen_W = '1;
+
+    // Checking F/D stage X stage is invalid
+    assert(DUT.inst_rd_D == 5'b00011) begin
+      $display("inst_rd_D is correct.  Expected: %b, Actual: %b", 5'b00011,DUT.inst_rd_D);pass();
+    end else begin
+      $display("inst_rd_D is incorrect.  Expected: %b, Actual: %b", 'b00011,DUT.inst_rd_D); fail(); $finish();
+    end 
+    assert(DUT.imm_D == 32'b11) begin
+      $display("imm_D is correct.  Expected: %b, Actual: %b", 'b11,DUT.imm_D);pass();
+    end else begin
+      $display("imm_D is incorrect.  Expected: %b, Actual: %b", 'b11,DUT.imm_D); fail(); $finish();
+    end 
+
+    //Advancing time
+    $display( "Advancing time, addi x3, x0, 3 X");
+    @(negedge clk); 
+     // Checking F/D/X stage 
+
+    ex_result_sel_X = 2'b1; // choose alu
+    
+    //Advancing time
+    $display( "Advancing time, addi x3, x0, 3 M");
+    @(negedge clk); 
+     // Checking F/D/X stage 
+    assert(DUT.op1_X == 'b0) begin
+      $display("op1_X is correct.  Expected: %b, Actual: %b", 'b0,DUT.op1_X);pass();
+    end else begin
+      $display("op1_X is incorrect.  Expected: %b, Actual: %b", 'b0,DUT.op1_X); fail(); $finish();
+    end
+    assert(DUT.ex_result_X == 'b11) begin
+      $display("ex_result_X is correct.  Expected: %b, Actual: %b", 'b11,DUT.ex_result_X); pass();
+    end else begin
+      $display("ex_result_X is incorrect.  Expected: %h, Actual: %h", 'b11,DUT.ex_result_X); fail(); $finish();
+    end 
+
+    //Advancing time
+    $display( "Advancing time, addi x3, x0, 3 W");
+    @(negedge clk);
+    // Checking W stage 
+    assert(DUT.rf_wdata_W == 'b11) begin
+      $display("rf_wdata_W is correct.  Expected: %b, Actual: %b", 'b11,DUT.rf_wdata_W);pass();
+    end else begin
+      $display("rf_wdata_W is incorrect.  Expected: %b, Actual: %b", 'b11,DUT.rf_wdata_W); fail(); $finish();
+    end
+
+    #10
+
+    imem_respstream_msg.data   = 32'b000000000100_00000_000_00100_0010011; // addi x4, x0, 4
+    rf_waddr_W ='d4;
+    rf_wen_W = '1;
+
+    @(negedge clk); 
+    $display( "Advancing time, addi x4, x0, 4 F");
+
+    //Advancing time
+    $display( "Advancing time, addi x4, x0, 4 D");
+    @(negedge clk); 
+    op2_sel_D  = 2'b01; // choose sext(imm)
+    imm_type_D = '0; // I-type imm-type
+    // Checking F/D stage X stage is invalid
+    assert(DUT.inst_rd_D == 5'b00100) begin
+      $display("inst_rd_D is correct.  Expected: %b, Actual: %b", 5'b00100,DUT.inst_rd_D);pass();
+    end else begin
+      $display("inst_rd_D is incorrect.  Expected: %b, Actual: %b", 'b00100,DUT.inst_rd_D); fail(); $finish();
+    end 
+    assert(DUT.imm_D == 32'b100) begin
+      $display("imm_D is correct.  Expected: %b, Actual: %b", 'b100,DUT.imm_D);pass();
+    end else begin
+      $display("imm_D is incorrect.  Expected: %b, Actual: %b", 'b100,DUT.imm_D); fail(); $finish();
+    end 
+
+    //Advancing time
+    $display( "Advancing time, addi x4, x0, 4 X");
+    @(negedge clk); 
+     // Checking F/D/X stage 
+
+    ex_result_sel_X = 2'b1; // choose alu
+    
+    //Advancing time
+    $display( "Advancing time, addi x4, x0, 4 M");
+    @(negedge clk); 
+     // Checking F/D/X stage 
+    assert(DUT.op1_X == 'b0) begin
+      $display("op1_X is correct.  Expected: %b, Actual: %b", 'b0,DUT.op1_X);pass();
+    end else begin
+      $display("op1_X is incorrect.  Expected: %b, Actual: %b", 'b0,DUT.op1_X); fail(); $finish();
+    end
+    assert(DUT.ex_result_X == 'b100) begin
+      $display("ex_result_X is correct.  Expected: %b, Actual: %b", 'b100,DUT.ex_result_X); pass();
+    end else begin
+      $display("ex_result_X is incorrect.  Expected: %h, Actual: %h", 'b100,DUT.ex_result_X); fail(); $finish();
+    end 
+
+    //Advancing time
+    $display( "Advancing time, addi x4, x0, 4 W");
+    @(negedge clk);
+    // Checking W stage 
+    assert(DUT.rf_wdata_W == 'b100) begin
+      $display("rf_wdata_W is correct.  Expected: %b, Actual: %b", 'b100,DUT.rf_wdata_W);pass();
+    end else begin
+      $display("rf_wdata_W is incorrect.  Expected: %b, Actual: %b", 'b100,DUT.rf_wdata_W); fail(); $finish();
+    end
+
+    #10
+
+    imem_respstream_msg.data   = 32'b000000000101_00000_000_00101_0010011; // addi x5, x0, 5
+    rf_waddr_W ='d5;
+    rf_wen_W = '1;
+
+    @(negedge clk);    
+    $display( "Advancing time, addi x5, x0, 5 F");
+
+    //Advancing time
+    $display( "Advancing time, addi x5, x0, 5 D");
+    @(negedge clk); 
+    op2_sel_D  = 2'b01; // choose sext(imm)
+    imm_type_D = '0; // I-type imm-type
+    // Checking F/D stage X stage is invalid
+    assert(DUT.inst_rd_D == 5'b00101) begin
+      $display("inst_rd_D is correct.  Expected: %b, Actual: %b", 5'b00101,DUT.inst_rd_D);pass();
+    end else begin
+      $display("inst_rd_D is incorrect.  Expected: %b, Actual: %b", 'b00101,DUT.inst_rd_D); fail(); $finish();
+    end 
+    assert(DUT.imm_D == 32'b101) begin
+      $display("imm_D is correct.  Expected: %b, Actual: %b", 'b101,DUT.imm_D);pass();
+    end else begin
+      $display("imm_D is incorrect.  Expected: %b, Actual: %b", 'b101,DUT.imm_D); fail(); $finish();
+    end 
+
+    //Advancing time
+    $display( "Advancing time, addi x5, x0, 5 X");
+    @(negedge clk); 
+     // Checking F/D/X stage 
+
+    ex_result_sel_X = 2'b1; // choose alu
+    
+    //Advancing time
+    $display( "Advancing time, addi x5, x0, 5 M");
+    @(negedge clk); 
+     // Checking F/D/X stage 
+    assert(DUT.op1_X == 'b0) begin
+      $display("op1_X is correct.  Expected: %b, Actual: %b", 'b0,DUT.op1_X);pass();
+    end else begin
+      $display("op1_X is incorrect.  Expected: %b, Actual: %b", 'b0,DUT.op1_X); fail(); $finish();
+    end
+    assert(DUT.ex_result_X == 'b101) begin
+      $display("ex_result_X is correct.  Expected: %b, Actual: %b", 'b101,DUT.ex_result_X); pass();
+    end else begin
+      $display("ex_result_X is incorrect.  Expected: %h, Actual: %h", 'b101,DUT.ex_result_X); fail(); $finish();
+    end 
+
+    //Advancing time
+    $display( "Advancing time, addi x5, x0, 5 W");
+    @(negedge clk);
+    // Checking W stage 
+    assert(DUT.rf_wdata_W == 'b101) begin
+      $display("rf_wdata_W is correct.  Expected: %b, Actual: %b", 'b101,DUT.rf_wdata_W);pass();
+    end else begin
+      $display("rf_wdata_W is incorrect.  Expected: %b, Actual: %b", 'b101,DUT.rf_wdata_W); fail(); $finish();
+    end
+
+    imem_respstream_msg.data   = 32'b000000000110_00000_000_00110_0010011; // addi x6, x0, 6
+    rf_waddr_W ='d6;
+    rf_wen_W = '1;
+
+    @(negedge clk); 
+    $display( "Advancing time, addi x6, x0, 6 F");
+
+    //Advancing time
+    $display( "Advancing time, addi x6, x0, 6 D");
+    @(negedge clk); 
+    op2_sel_D  = 2'b01; // choose sext(imm)
+    imm_type_D = '0; // I-type imm-type
+    // Checking F/D stage X stage is invalid
+    assert(DUT.inst_rd_D == 5'b00110) begin
+      $display("inst_rd_D is correct.  Expected: %b, Actual: %b", 5'b00110,DUT.inst_rd_D);pass();
+    end else begin
+      $display("inst_rd_D is incorrect.  Expected: %b, Actual: %b", 'b00110,DUT.inst_rd_D); fail(); $finish();
+    end 
+    assert(DUT.imm_D == 32'b110) begin
+      $display("imm_D is correct.  Expected: %b, Actual: %b", 'b110,DUT.imm_D);pass();
+    end else begin
+      $display("imm_D is incorrect.  Expected: %b, Actual: %b", 'b110,DUT.imm_D); fail(); $finish();
+    end 
+
+    //Advancing time
+    $display( "Advancing time, addi x6, x0, 6 X");
+    @(negedge clk); 
+     // Checking F/D/X stage 
+
+    ex_result_sel_X = 2'b1; // choose alu
+    
+    //Advancing time
+    $display( "Advancing time, addi x6, x0, 6 M");
+    @(negedge clk); 
+     // Checking F/D/X stage 
+    assert(DUT.op1_X == 'b0) begin
+      $display("op1_X is correct.  Expected: %b, Actual: %b", 'b0,DUT.op1_X);pass();
+    end else begin
+      $display("op1_X is incorrect.  Expected: %b, Actual: %b", 'b0,DUT.op1_X); fail(); $finish();
+    end
+    assert(DUT.ex_result_X == 'b110) begin
+      $display("ex_result_X is correct.  Expected: %b, Actual: %b", 'b110,DUT.ex_result_X); pass();
+    end else begin
+      $display("ex_result_X is incorrect.  Expected: %h, Actual: %h", 'b110,DUT.ex_result_X); fail(); $finish();
+    end 
+
+    //Advancing time
+    $display( "Advancing time, addi x6, x0, 6 W");
+    @(negedge clk);
+    // Checking W stage 
+    assert(DUT.rf_wdata_W == 'b110) begin
+      $display("rf_wdata_W is correct.  Expected: %b, Actual: %b", 'b110,DUT.rf_wdata_W);pass();
+    end else begin
+      $display("rf_wdata_W is incorrect.  Expected: %b, Actual: %b", 'b110,DUT.rf_wdata_W); fail(); $finish();
+    end
+
+    #10
+
+    imem_respstream_msg.data   = 32'b0000000_00110_00101_000_00100_0110011; // add  x4, x5, x6 => x4 = 11
+    rf_waddr_W ='d4;
+    rf_wen_W = '1;
+
+    @(negedge clk); 
+    $display( "Advancing time, add  x4, x5, x6 F");
+
+    //Advancing time
+    $display( "Advancing time, add  x4, x5, x6 D");
+    @(negedge clk); 
+    op2_sel_D  = 2'b0; // choose rf_rdata1_D
+    op1_sel_D  = 0; // choose rf_rdata0_D
+
+    // Checking F/D stage X stage is invalid
+    assert(DUT.inst_rd_D == 5'b00100) begin
+      $display("inst_rd_D is correct.  Expected: %b, Actual: %b", 5'b00100,DUT.inst_rd_D);pass();
+    end else begin
+      $display("inst_rd_D is incorrect.  Expected: %b, Actual: %b", 'b00100,DUT.inst_rd_D); fail(); $finish();
+    end 
+
+    //Advancing time
+    $display( "Advancing time, add  x4, x5, x6 X");
+    @(negedge clk); 
+     // Checking F/D/X stage 
+    assert(DUT.op1_X == 'd5) begin
+      $display("op1_X is correct.  Expected: %b, Actual: %b", 'd5,DUT.op1_X);pass();
+    end else begin
+      $display("op1_X is incorrect.  Expected: %b, Actual: %b", 'd5,DUT.op1_X); fail(); $finish();
+    end
+    assert(DUT.op2_X == 'd6) begin
+      $display("op2_X is correct.  Expected: %b, Actual: %b", 'd6,DUT.op2_X);pass();
+    end else begin
+      $display("op2_X is incorrect.  Expected: %b, Actual: %b", 'd6,DUT.op2_X); fail(); $finish();
+    end
+
+    ex_result_sel_X = 2'b1; // choose alu
+    
+    //Advancing time
+    $display( "Advancing time, add  x4, x5, x6 M");
+    @(negedge clk); 
+     // Checking F/D/X stage 
+    assert(DUT.ex_result_X == 'd11) begin
+      $display("ex_result_X is correct.  Expected: %b, Actual: %b", 'd11,DUT.ex_result_X); pass();
+    end else begin
+      $display("ex_result_X is incorrect.  Expected: %h, Actual: %h", 'd11,DUT.ex_result_X); fail(); $finish();
+    end 
+
+    //Advancing time
+    $display( "Advancing time, addi x6, x0, 6 W");
+    @(negedge clk);
+    // Checking W stage 
+    assert(DUT.rf_wdata_W == 'd11) begin
+      $display("rf_wdata_W is correct.  Expected: %b, Actual: %b", 'd11,DUT.rf_wdata_W);pass();
+    end else begin
+      $display("rf_wdata_W is incorrect.  Expected: %b, Actual: %b", 'd11,DUT.rf_wdata_W); fail(); $finish();
+    end
+
+    #10
+
+
+    csrr_sel_D = '1;
+    core_id = '0;
+
+
     $finish();
 
   end
