@@ -38,7 +38,7 @@ srli x17, x18, 25
 andi x20, x20, 3991
 srai x16, x9, 21
 or x4, x1, x19
-lui x1, 0x2000
+lui x1, 0x0002
 sw x2, 0(x1)
 sw x3, 4(x1)
 sw x4, 8(x1)
