@@ -68,7 +68,7 @@ module lab2_proc_ProcAltDpath
   input  logic         reg_en_W,
   input  logic [4:0]   rf_waddr_W,
   input  logic         rf_wen_W,
-  input  logic         stats_en_wen_W,
+  input  logic         stats_en_wen_W  // toggle coverage exception
 
   // status signals (dpath->ctrl)
 
@@ -81,9 +81,9 @@ module lab2_proc_ProcAltDpath
   output logic         imul_resp_val_X,
 
   // extra ports
-
-  input  logic [31:0]  core_id,
-  output logic         stats_en
+  
+  input  logic [31:0]  core_id, // toggle coverage exception
+  output logic         stats_en // toggle coverage exception
 );
 
   localparam c_reset_vector = 32'h200;
